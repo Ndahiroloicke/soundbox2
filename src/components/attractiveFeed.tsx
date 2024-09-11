@@ -1,4 +1,4 @@
-import React from 'react'
+
 import musicVector from '../assets/musicVector.png'
 import musicPic from '../assets/musicPic.png'
 import pause from '../assets/pause.png'
@@ -24,7 +24,7 @@ const AttractiveFeed = () => {
           <i className='bx bx-left-arrow-alt bg-gradient-to-br from-gray-700 to-gray-800 border-white border-2 sm:py-3 sm:px-4 sm:mr-3 mr-1 rounded-xl'></i>
           <i className='bx bx-right-arrow-alt  bg-gradient-to-br from-gray-700 to-gray-800 border-white border-2 sm:py-3 sm:px-4 rounded-xl'></i>
         </div>
-        <div className='sm:-mt-64 -mt-24 ml-0 items-center inline-flex justify-between sm:ml-9'>
+        <div className='sm:-mt-64 -mt-24 ml-0 items-center flex justify-center sm:ml-9'>
           <img src={Image} alt="" className='sm:w-80 w-44 z-20 ' />
           <div className=' flex -ml-7 flex-row gap-x-2 sm:gap-x-6 items-center rounded-xl border-1 z-30 py-1 lg:py-2 sm:py-2 bg-slate-500  sm:px-5 border-white w-fit h-fit'>
             <i className='bx bx-bar-chart sm:text-3xl text-lg font-bold'></i>

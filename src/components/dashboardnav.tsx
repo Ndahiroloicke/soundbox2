@@ -1,9 +1,9 @@
-import React from 'react'
+
 
 const DashboardNav = () => {
     return (
-        <div className='text-white pt-10 bg-[#0C203C] fixed left-0 w-fit pb-20'>
-            <div className='flex ml-9 mr-20 mb-10 flex-row items-center gap-x-3 hover:cursor-pointer'>
+        <div className='hidden lg:block sm:text-white sm:pt-10 sm:bg-[#0C203C] sm:w-fit sm:pb-20'>
+            <div className='sm:flex ml-9 mr-20 mb-10 flex-row items-center gap-x-3 hover:cursor-pointer'>
                 <i className='bx bx-play bg-[#B6FF52] text-blue-950 text-5xl rounded-full'></i>
                 <h1 className='font-bold text-2xl'>SoundBox</h1>
             </div>

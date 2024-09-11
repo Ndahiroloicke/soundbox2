@@ -1,4 +1,4 @@
-import React from 'react'
+
 import backpic from '../assets/backpic.png'
 import frontpic from '../assets/frontpic.png'
 

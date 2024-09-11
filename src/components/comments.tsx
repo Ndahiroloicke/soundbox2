@@ -1,4 +1,3 @@
-import React from 'react'
 import CommentsCards from './commentsCards';
 import diannne from '../assets/Dianne.png';
 import kristin from '../assets/kristin.png';
@@ -24,7 +23,7 @@ const Comments = () => {
             <div className='flex flex-row mt-10 gap-x-8'>
                 <CommentsCards image={diannne} name='Dianne Russell' role='Marketing Coordinator' comment="The soundbox website platform really makes it easy for me to find songs that are going viral on tiktok"/>
                 <CommentsCards image={cameron} name='Cameron Williamson' role='Trust Administrator' comment="I think this is very good and the features used are very satisfying, you should try this platform"/>
-                <CommentsCards image={cameron} name='Kristin Watson' role='President of Sales' comment="With the existence of a music website platform, of course many are helped, from musicians and music lovers"/>
+                <CommentsCards image={kristin} name='Kristin Watson' role='President of Sales' comment="With the existence of a music website platform, of course many are helped, from musicians and music lovers"/>
             </div>
         </div>
     </div>

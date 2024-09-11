@@ -1,4 +1,4 @@
-import React from 'react'
+
 import sadsong from '../assets/sadsong.png'
 import statusbar from '../assets/statusbar.png'
 import back from '../assets/back.png'
@@ -8,7 +8,7 @@ const Nowplaying = () => {
   return (
     <div className='text-white px-9 py-2 fixed bottom-0 w-full bg-slate-600 bg-opacity-75'>
         <div className='flex flex-row items-center justify-between'>
-        <img src={sadsong} alt="" className='size-16 rounded-lg'/>
+        <img src={sadsong} alt="" className='sm:size-16 rounded-lg'/>
         <div>
             <h1 className='font-bold'>Bad Habbit</h1>
             <p className='font-thin'>Steve Lacy</p>

@@ -1,4 +1,5 @@
-import React from 'react'
+
+import { Link } from 'react-router-dom'
 
 const Footer = () => {
     return (
@@ -29,7 +30,7 @@ const Footer = () => {
                 <i className='bx bxl-instagram-alt text-4xl text-[#B6FF52]'></i>
             </div>
             <div>
-                <button className='bg-[#B6FF52] font-bold text-black py-6 px-7 rounded-2xl'>Join As a Guest</button>
+               <Link to={'/login'}> <button className='bg-[#B6FF52] font-bold text-black py-6 px-7 rounded-2xl'>Join With Spotify</button> </Link>
             </div>
         </div>
     )
