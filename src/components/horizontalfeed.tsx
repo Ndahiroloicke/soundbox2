@@ -8,7 +8,7 @@ interface horizontalProps {
 
 const Horizontal: React.FC<horizontalProps> = ({ token }) => {
   const [tracks, setTracks] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!token) return;
@@ -25,10 +25,10 @@ const Horizontal: React.FC<horizontalProps> = ({ token }) => {
         );
         setTracks(response.data.items);
         console.log(response.data.items)
-        setLoading(false);
+        // setLoading(false);
       } catch (error) {
         console.log('Error has occurred', error);
-        setLoading(false);
+        // setLoading(false);
       }
     };
     fetchRecentlyPlayed();

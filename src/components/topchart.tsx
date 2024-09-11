@@ -3,13 +3,19 @@ import profile from "../assets/profile.png"; // Fallback profile image
 import Topsong from "./topsong";
 import axios from "axios";
 
+interface UserProfile {
+  display_name: string;
+  email: string;
+  images: { url: string }[]; // Adjust based on the actual structure
+}
+
 interface topchartProps {
   token: string | null;
 }
 
 const TopChart: React.FC<topchartProps> = ({ token }) => {
   const [topCharts, setTopcharts] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<{ display_name: string; email: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -26,7 +32,7 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
           }
         );
         setTopcharts(response.data.items);
-        console.log(response)
+        console.log(response);
       } catch (error) {
         console.error("Error fetching top charts:", error);
       }
@@ -35,7 +41,7 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
     // Fetch User Profile Info (Name & Email)
     const fetchUserProfile = async () => {
       try {
-        const response = await axios.get("https://api.spotify.com/v1/me", {
+        const response = await axios.get<UserProfile>("https://api.spotify.com/v1/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
