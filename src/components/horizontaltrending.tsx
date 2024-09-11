@@ -43,6 +43,7 @@ const HorizontalTopPicks: React.FC<horizontalProps> = ({ token }) => {
       <div className='flex flex-row gap-x-1'>
         {!loading && tracks.map((trackData: any) => (
           <Imagebox
+            previewUrl={''}
             key={trackData.id}
             image={trackData.images[0]?.url || 'sadsong'} // Fallback image if none is available
             songname={trackData.name}

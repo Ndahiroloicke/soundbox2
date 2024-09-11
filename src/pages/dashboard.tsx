@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import DashboardNav from '../components/dashboardnav'
 import DashboardSearch from '../components/dashboardSearch'
 import TopChart from '../components/topchart'
-import Nowplaying from '../components/nowplaying'
-import loadingimage from '../assets/output-onlinegiftools.gif'
+// import Nowplaying from '../components/nowplaying'
+// import loadingimage from '../assets/output-onlinegiftools.gif'
 
 const Dashboard = () => {
   const [token,settoken] = useState<string|null>(null);
