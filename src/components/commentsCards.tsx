@@ -1,5 +1,4 @@
 import React from 'react'
-import diannne from '../assets/Dianne.png'
 
 interface CommentsCardsProps{
     image:string,

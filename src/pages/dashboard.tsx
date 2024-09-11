@@ -7,13 +7,13 @@ import TopChart from '../components/topchart'
 
 const Dashboard = () => {
   const [token,settoken] = useState<string|null>(null);
-  const [loading,setloading] = useState<boolean>(true)
+  // const [loading,setloading] = useState<boolean>(true)
 
 
   useEffect(()=>{
     const storeToken = window.localStorage.getItem('token');
     settoken(storeToken)
-    setloading(false)
+    // setloading(false)
   })
   
   return (
