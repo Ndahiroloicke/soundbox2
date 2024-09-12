@@ -10,15 +10,15 @@ interface ToptierCardProps {
 // Use the interface to type the props in the functional component
 const ToptierCard: React.FC<ToptierCardProps> = ({ image, heading, para }) => {
   return (
-    <div className='flex justify-between flex-col bg-gradient-to-tr to-slate-900 from-blue-950 px-8 rounded-3xl border-2 border-white w-fit py-16'>
-      <div className='w-[260px] mb-8'>
-        <img src={image} alt="" className='size-14' />
+    <div className='flex flex-col items-center bg-gradient-to-tr from-blue-950 to-slate-900 px-6 sm:px-8 py-8 sm:py-12 rounded-3xl border-2 border-white w-full sm:w-auto'>
+      <div className='w-24 sm:w-32 mb-4 sm:mb-6'>
+        <img src={image} alt="" className='w-full h-auto' />
       </div>
-      <div className='w-[260px] mb-6'>
-        <h1 className='font-semibold text-2xl'>{heading}</h1>
+      <div className='text-center mb-4 sm:mb-6'>
+        <h1 className='text-lg sm:text-2xl font-semibold'>{heading}</h1>
       </div>
-      <div className='w-[260px] font-extralight'>
-        <p>{para}</p>
+      <div className='text-center font-extralight'>
+        <p className='text-sm sm:text-base'>{para}</p>
       </div>
     </div>
   );

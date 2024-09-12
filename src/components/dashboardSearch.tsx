@@ -121,17 +121,17 @@ const DashboardSearch: React.FC<dashboardprops> = ({ token }) => {
       )}
       <div className="text-white font-bold text-2xl mt-16">
         <p className="text-sm sm:text-2xl">Hello, Good Morning👋</p>
-        <div className="bg-gradient-to-t from-blue-500 to-blue-300 rounded-2xl mt-6 via-blue-400 w-full lg:w-[800px] sm:w-[98vw] h-40 sm:h-60 flex lg:justify-end lg:items-end">
-          <div className="flex gap-x-20 items-center">
-            <div className="ml-5">
+        <div className="bg-gradient-to-t from-blue-500 to-blue-300 rounded-2xl mt-6 via-blue-400 lg:w-[800px] sm:w-[98vw] h-40 sm:h-60 flex lg:justify-end lg:items-end">
+          <div className="flex sm:gap-x-20 items-center">
+            <div className="sm:ml-5">
               <h1 className="font-bold sm:text-5xl">POP!</h1>
               <p className="font-semibold text-sm">
-                By <span className="text-[#B6FF52] font-bold">Im Nayeon</span>
+                By <span className="text-[#B6FF52] text-xs font-bold">Im Nayeon</span>
               </p>
             </div>
-            <img src={girlposter} alt="" className="h-auto mt-auto" />
+            <img src={girlposter} alt="" className="h-auto size-[40%] sm:size-[100%] mt-auto" />
           </div>
-          <div className="flex flex-row mt-auto align-bottom mb-2 sm:mr-5 text-[9px] mr-2 gap-x-1">
+          <div className="flex flex-row mt-auto align-bottom mb-2 sm:mr-5 text-[9px] gap-x-1">
             <i className="bx bx-left-arrow-alt bg-transparent sm:rounded-lg rounded-md border-2 py-1 px-2"></i>
             <i className="bx bx-right-arrow-alt bg-transparent sm:rounded-lg rounded-md border-2 py-1 px-2"></i>
           </div>

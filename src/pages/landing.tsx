@@ -10,7 +10,7 @@ import Footer from "../components/footer"
 
 const Landing = () => {
   return (
-    <div className="bg-gradient-to-l overflow-x-hidden from-blue-950 to-black w-full h-full lg:h-full sm:h-full">
+    <div className="bg-gradient-to-l overflow-x-hidden flex-1 justify-center align-middle from-blue-950 to-black w-full h-full lg:h-full sm:h-full">
         <Navbar/>
         <AttractiveFeed/>
         <SecondLanding/>

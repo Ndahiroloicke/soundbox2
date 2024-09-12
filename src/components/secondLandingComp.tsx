@@ -4,8 +4,8 @@ import frontpic from '../assets/frontpic.png'
 
 const SecondLanding = () => {
   return (
-    <div className='sm:mx-40 mt-44 text-white'>
-        <div className='flex flex-row'>
+    <div className='sm:mx-40 mt-16 sm:mt-36 text-white'>
+        <div className='flex flex-row items-center'>
             <div className='ml-3'>
                 <img src={backpic} alt="" className='sm:size-64 z-10'/>
                 <img src={frontpic} alt="" className='sm:size-64 z-20 -mt-12 ml-8 sm:-mt-36 sm:ml-20'/>

@@ -8,7 +8,24 @@ interface horizontalProps {
 
 const Horizontal: React.FC<horizontalProps> = ({ token }) => {
   const [tracks, setTracks] = useState<any[]>([]);
-  // const [loading, setLoading] = useState<boolean>(true);
+  const [itemsToFetch, setItemsToFetch] = useState<number>(6); // Default for larger screens
+
+  useEffect(() => {
+    const updateItemsToFetch = () => {
+      if (window.matchMedia("(max-width: 640px)").matches) {
+        setItemsToFetch(4); // Mobile
+      } else {
+        setItemsToFetch(6); // Larger screens
+      }
+    };
+
+    updateItemsToFetch();
+    window.addEventListener('resize', updateItemsToFetch);
+
+    return () => {
+      window.removeEventListener('resize', updateItemsToFetch);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -16,7 +33,7 @@ const Horizontal: React.FC<horizontalProps> = ({ token }) => {
     const fetchRecentlyPlayed = async () => {
       try {
         const response = await axios.get(
-          "https://api.spotify.com/v1/me/player/recently-played?limit=6",
+          `https://api.spotify.com/v1/me/player/recently-played?limit=${itemsToFetch}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -24,31 +41,32 @@ const Horizontal: React.FC<horizontalProps> = ({ token }) => {
           }
         );
         setTracks(response.data.items);
-        console.log(response.data.items)
-        // setLoading(false);
       } catch (error) {
         console.log('Error has occurred', error);
-        // setLoading(false);
       }
     };
     fetchRecentlyPlayed();
-  }, [token]);
+  }, [token, itemsToFetch]);
 
   return (
-    <div className='text-white mt-9'>
-      <div className='mb-9'>
-        <h1 className='font-extrabold text-2xl'>Recently Played</h1>
+    <div className='text-white mt-9 w-full'>
+      <div className='mb-6'>
+        <h1 className='font-extrabold text-lg sm:text-2xl'>Recently Played</h1>
       </div>
-      <div className='flex sm:flex-row gap-x-1'>
-        {tracks.map((trackData: any) => (
-          <Imagebox
-            key={trackData.track.id}
-            image={trackData.track.album.images[1]?.url || 'sadsong'} // Fallback image if none is available
-            songname={trackData.track.name}
-            artistname={trackData.track.artists[0]?.name || "Unknown Artist"}
-            previewUrl={trackData.track.preview_url} // Pass the preview URL
-          />
-        ))}
+      <div className='flex overflow-x-auto space-x-4 pb-4'> {/* Enable horizontal scrolling */}
+        {tracks.length > 0 ? (
+          tracks.map((trackData: any) => (
+            <Imagebox
+              key={trackData.track.id}
+              image={trackData.track.album.images[1]?.url || 'sadsong'}
+              songname={trackData.track.name}
+              artistname={trackData.track.artists[0]?.name || "Unknown Artist"}
+              previewUrl={trackData.track.preview_url}
+            />
+          ))
+        ) : (
+          <p>No recently played tracks found</p>
+        )}
       </div>
     </div>
   );

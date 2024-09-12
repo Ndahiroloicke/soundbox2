@@ -1,33 +1,27 @@
-import { useEffect, useState } from 'react'
-import DashboardNav from '../components/dashboardnav'
-import DashboardSearch from '../components/dashboardSearch'
-import TopChart from '../components/topchart'
-// import Nowplaying from '../components/nowplaying'
-// import loadingimage from '../assets/output-onlinegiftools.gif'
+import { useEffect, useState } from "react";
+import DashboardNav from "../components/dashboardnav";
+import DashboardSearch from "../components/dashboardSearch";
+import TopChart from "../components/topchart";
 
 const Dashboard = () => {
-  const [token,settoken] = useState<string|null>(null);
-  // const [loading,setloading] = useState<boolean>(true)
+  const [token, setToken] = useState<string | null>(null);
 
+  useEffect(() => {
+    const storeToken = window.localStorage.getItem("token");
+    setToken(storeToken);
+  }, []); // Add an empty dependency array to run only once
 
-  useEffect(()=>{
-    const storeToken = window.localStorage.getItem('token');
-    settoken(storeToken)
-    // setloading(false)
-  })
-  
   return (
-    
-    <div className='bg-gradient-to-l to-black from-blue-950 w-screen h-screen sm:h-full lg:w-[98.7vw]'>
-      <div className='flex flex-row justify-between gap-x-10'>
+    <div className="bg-gradient-to-l from-blue-950 to-black min-h-screen flex flex-col">
+      <div className="flex flex-row justify-between gap-x-10 p-4">
         <DashboardNav />
         <DashboardSearch token={token} />
-        <TopChart token={token}/>
+        <TopChart token={token} />
       </div>
-      {/* <Nowplaying /> */}
-</div>
-
-  )
-}
+      {/* Optional: Add more content here if needed */}
+      <div className="flex-grow"></div> {/* This will take up remaining space */}
+    </div>
+  );
+};
 
 export default Dashboard;
