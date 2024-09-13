@@ -9,13 +9,16 @@ interface UserProfile {
   images: { url: string }[]; // Adjust based on the actual structure
 }
 
-interface topchartProps {
+interface TopChartProps {
   token: string | null;
 }
 
-const TopChart: React.FC<topchartProps> = ({ token }) => {
-  const [topCharts, setTopcharts] = useState<any[]>([]);
+const TopChart: React.FC<TopChartProps> = ({ token }) => {
+  const [topCharts, setTopCharts] = useState<any[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentPreviewUrl, setCurrentPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -31,8 +34,7 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
             },
           }
         );
-        setTopcharts(response.data.items);
-        console.log(response);
+        setTopCharts(response.data.items);
       } catch (error) {
         console.error("Error fetching top charts:", error);
       }
@@ -47,7 +49,6 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
           },
         });
         setUserProfile(response.data);
-        console.log(response);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -57,10 +58,40 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
     fetchUserProfile();
   }, [token]);
 
+  const handlePlayPreview = (previewUrl: string | null) => {
+    if (!previewUrl) {
+      return; // Handle no preview URL case
+    }
+
+    if (audio) {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        audio.pause(); // Pause current audio
+        setAudio(new Audio(previewUrl));
+        setCurrentPreviewUrl(previewUrl);
+        audio.play();
+        setIsPlaying(true);
+        audio.onended = () => {
+          setIsPlaying(false);
+        };
+      }
+    } else {
+      const newAudio = new Audio(previewUrl);
+      newAudio.play();
+      setAudio(newAudio);
+      setCurrentPreviewUrl(previewUrl);
+      setIsPlaying(true);
+      newAudio.onended = () => {
+        setIsPlaying(false);
+      };
+    }
+  };
+
   return (
     <div className="hidden lg:block text-white my-6">
       <div className="flex flex-row items-center gap-x-3">
-        {/* Use user's Spotify profile image if available, else use fallback image */}
         <img
           src={userProfile?.images?.[0]?.url || profile}
           alt="profile"
@@ -83,6 +114,7 @@ const TopChart: React.FC<topchartProps> = ({ token }) => {
               title={track.name}
               artist={track.artists[0].name}
               imageUrl={track.album.images[0]?.url}
+              onPlay={handlePlayPreview} // Pass down the play handler
             />
           ))}
         </div>

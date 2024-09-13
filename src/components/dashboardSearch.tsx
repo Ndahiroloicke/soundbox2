@@ -6,17 +6,20 @@ import lightbar from "../assets/lightbar.png";
 import Horizontal from "./horizontalfeed";
 import HorizontalNewRealeased from "./horizontalNew";
 import HorizontalTopPicks from "./horizontaltrending";
+import BottomPlayer from "./bottomplayer";
 
-interface dashboardprops {
+interface DashboardProps {
   token: string | null;
+  playingPreview: string | null; // Added to receive the current playing preview URL
+  onPlayPreview: (url: string | null) => void; // Added to handle play preview
 }
 
-const DashboardSearch: React.FC<dashboardprops> = ({ token }) => {
+const DashboardSearch: React.FC<DashboardProps> = ({ token, playingPreview, onPlayPreview }) => {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(query);
   const [focused, setFocused] = useState<boolean>(false);
-  const [playingPreview, setPlayingPreview] = useState<string | null>(null);
+  const [showNotification, setShowNotification] = useState<boolean>(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -60,11 +63,10 @@ const DashboardSearch: React.FC<dashboardprops> = ({ token }) => {
     };
   }, []);
 
-  const handlePlayPreview = (previewUrl: string | null) => {
-    if (playingPreview === previewUrl) {
-      setPlayingPreview(null); // Stop playback if already playing
-    } else {
-      setPlayingPreview(previewUrl); // Start playback of new preview
+  const handleNotificationChange = (show: boolean) => {
+    setShowNotification(show);
+    if (show) {
+      setTimeout(() => setShowNotification(false), 3000);
     }
   };
 
@@ -81,20 +83,12 @@ const DashboardSearch: React.FC<dashboardprops> = ({ token }) => {
       {focused && results.length > 0 && (
         <ul className="absolute bg-white text-black mt-2 w-[800px] max-h-[300px] overflow-y-auto rounded-xl shadow-lg">
           {results.map((track) => (
-            <li
-              key={track.id}
-              className="p-2 hover:bg-gray-200 cursor-pointer"
-              // onClick={(e) => {
-              //   e.preventDefault();
-              //   setFocused(false);
-              //   handlePlayPreview(track.preview_url);
-              // }}
-            >
+            <li key={track.id} className="p-2 hover:bg-gray-200 cursor-pointer flex justify-between items-center">
               <div
                 className="flex items-center"
-                onMouseEnter={() => {
-                  setFocused(true);
-                  handlePlayPreview(track.preview_url);
+                onClick={() => {
+                  onPlayPreview(track.preview_url); // Use the passed function
+                  setFocused(false);
                 }}
               >
                 <img
@@ -109,11 +103,24 @@ const DashboardSearch: React.FC<dashboardprops> = ({ token }) => {
                   </p>
                 </div>
               </div>
+              <button
+                className="ml-4 bg-green-500 text-white p-2 rounded-full"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering the parent onClick
+                  onPlayPreview(track.preview_url); // Use the passed function
+                }}
+              >
+                Play
+              </button>
               {playingPreview === track.preview_url && (
-                <audio controls autoPlay>
-                  <source src={track.preview_url} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
+                <BottomPlayer
+                  clickPlay={true}
+                  image={track.album.images[1]?.url}
+                  songname={track.name}
+                  previewUrl={track.preview_url}
+                  artistname={track.artists[0]?.name}
+                  onNotificationChange={handleNotificationChange}
+                />
               )}
             </li>
           ))}

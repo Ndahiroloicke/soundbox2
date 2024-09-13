@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import BottomPlayer from '../components/bottomplayer';
 
 interface SongProps {
@@ -9,41 +9,21 @@ interface SongProps {
 }
 
 const Imagebox: React.FC<SongProps> = ({ image, songname, artistname, previewUrl }) => {
+  const [clickPlay, setClickPlay] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [showNotification, setShowNotification] = useState<boolean>(false);
 
-  const handlePlayPreview = () => {
-    if (!previewUrl) {
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000);
-      return;
-    }
-
-    if (isPlaying) {
-      audio?.pause();
-      setIsPlaying(false);
-    } else {
-      const newAudio = new Audio(previewUrl);
-      newAudio.play();
-      setAudio(newAudio);
-      setIsPlaying(true);
-
-      newAudio.onended = () => {
-        setIsPlaying(false);
-      };
-    }
+  const handleClick = () => {
+    setClickPlay(true);
+    setIsPlaying(true);
   };
 
-  useEffect(() => {
-    // Cleanup audio when component unmounts
-    return () => {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0; // Reset audio to start
-      }
-    };
-  }, [audio]);
+  const handleNotificationChange = (show: boolean) => {
+    setShowNotification(show);
+    if (show) {
+      setTimeout(() => setShowNotification(false), 3000); // Auto-hide after 3 seconds
+    }
+  };
 
   return (
     <div className='flex flex-col items-center'>
@@ -56,7 +36,7 @@ const Imagebox: React.FC<SongProps> = ({ image, songname, artistname, previewUrl
       <div className='flex flex-col items-center'>
         <img
           src={image}
-          onClick={handlePlayPreview}
+          onClick={handleClick}
           alt={songname}
           className='w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-md hover:opacity-75 cursor-pointer'
         />
@@ -66,11 +46,12 @@ const Imagebox: React.FC<SongProps> = ({ image, songname, artistname, previewUrl
         </div>
         {isPlaying && (
           <BottomPlayer
+            clickPlay={clickPlay}
             image={image}
             songname={songname}
             previewUrl={previewUrl}
             artistname={artistname}
-            audio={audio} 
+            onNotificationChange={handleNotificationChange} // Pass the callback
           />
         )}
       </div>

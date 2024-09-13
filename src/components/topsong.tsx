@@ -1,48 +1,39 @@
 import React from 'react';
 import play from '../assets/playbutton.png';
 import { useState } from 'react';
+import BottomPlayer from './bottomplayer';
 
 interface TopsongProps {
   rank: number;
   title: string;
   artist: string;
   imageUrl: string;
-  previewUrl: string | null;
+  previewUrl: string | undefined;
+  onPlay: (previewUrl: string | null) => void; // Add this prop
 }
 
-const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl }) => {
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [previewNull, setPreviewNull] = useState<boolean>(false);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl, onPlay }) => {
   const [showNotification, setShowNotification] = useState<boolean>(false);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [clickPlay, setClickPlay] = useState<boolean>(false);
 
   const handlePlayPreview = () => {
     if (!previewUrl) {
-      setPreviewNull(true);
       setShowNotification(true);
-
-      // Hide the notification after 3 seconds
-      setTimeout(() => {
-        setShowNotification(false);
-      }, 3000);
-
+      setTimeout(() => setShowNotification(false), 3000);
       return;
     }
-
-    if (isPlaying) {
-      audio?.pause();
-      setIsPlaying(false);
-    } else {
-      const newAudio = new Audio(previewUrl);
-      newAudio.play();
-      setAudio(newAudio);
-      setIsPlaying(true);
-
-      newAudio.onended = () => {
-        setIsPlaying(false); // Reset state when preview ends
-      };
-    }
+    setClickPlay(true)
+    setIsPlaying(true)
+    onPlay(previewUrl); // Call the onPlay function
   };
+
+  const handleNotificationChange = (show: boolean) => {
+    setShowNotification(show);
+    if (show) {
+      setTimeout(() => setShowNotification(false), 3000); // Auto-hide after 3 seconds
+    }
+  }
 
   return (
     <div>
@@ -60,12 +51,20 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
             <p className='text-gray-500 text-xs'>{artist}</p>
           </div>
         </div>
-        <img src={play} alt="play" onClick={handlePlayPreview} className='size-6' />
+        <img src={play} alt="play" onClick={handlePlayPreview} className='size-6 cursor-pointer' />
       </div>
-      {/* Show "Playing Preview" when the song is playing */}
-      {isPlaying && !previewNull && (
-          <p className='text-xs text-green-400 mt-1'>Playing Preview</p>
-        )}
+      {
+        isPlaying && (
+          <BottomPlayer
+          clickPlay={clickPlay}
+          image={imageUrl}
+          songname={title}
+          previewUrl={previewUrl}
+          artistname={artist}
+          onNotificationChange={handleNotificationChange}
+          />
+        )
+      }
     </div>
   );
 };
