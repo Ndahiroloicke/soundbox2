@@ -7,7 +7,7 @@ const Login: React.FC = () => {
 
   const handleClick = () => {
     const clientId = "7e211afa51c643c382cc8e1faf01d531";
-    const redirectUrl = "http://localhost:5173/login";
+    const redirectUrl = "https://your-production-url.com/login"; // Update this for production
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
