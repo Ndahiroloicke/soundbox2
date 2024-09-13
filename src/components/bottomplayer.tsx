@@ -6,7 +6,7 @@ interface BottomPlayerProps {
   artistname: string;
   previewUrl: string | null;
   clickPlay: boolean;
-  onNotificationChange: (show: boolean) => void;
+  onNotificationChange?: (show: boolean) => void; // Mark as optional
 }
 
 const BottomPlayer: React.FC<BottomPlayerProps> = ({
@@ -15,7 +15,7 @@ const BottomPlayer: React.FC<BottomPlayerProps> = ({
   artistname,
   previewUrl,
   clickPlay,
-  onNotificationChange,
+  onNotificationChange = () => {}, // Default no-op function
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 

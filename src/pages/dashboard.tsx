@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import DashboardNav from "../components/dashboardnav";
 import DashboardSearch from "../components/dashboardSearch";
 import TopChart from "../components/topchart";
@@ -47,7 +46,7 @@ const Dashboard = () => {
           artistname={currentTrack.artists[0]?.name}
           previewUrl={playingPreview}
           clickPlay={true} // Adjust this based on your logic
-          onNotificationChange={(show: boolean) => {}}
+          onNotificationChange={() => {}} // No-op function
         />
       )}
     </div>

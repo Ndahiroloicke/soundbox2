@@ -4,7 +4,6 @@ import Slider from "react-slick";
 import Horizontal from "./horizontalfeed";
 import HorizontalNewRealeased from "./horizontalNew";
 import HorizontalTopPicks from "./horizontaltrending";
-import BottomPlayer from "./bottomplayer";
 
 interface DashboardSearchProps {
   token: string | null;
@@ -57,50 +56,52 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
     fetchSearchResults();
   }, [debouncedQuery, token]);
 
-  const fetchUserPlaylists = async (token: string) => {
-    try {
-      const response = await axios.get(
-        `https://api.spotify.com/v1/me/playlists`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data.items)
-      return response.data.items; // Return the user's playlists
-    } catch (error) {
-      console.error("Error fetching user's playlists:", error);
-      return [];
-    }
-  };
+  useEffect(() => {
+    const fetchUserPlaylists = async (token: string) => {
+      try {
+        const response = await axios.get(
+          `https://api.spotify.com/v1/me/playlists`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setPlaylists(response.data.items); // Set the playlists here
+      } catch (error) {
+        console.error("Error fetching user's playlists:", error);
+      }
+    };
 
-  const fetchTracksFromPlaylist = async (playlistId: string, token: string) => {
-    try {
-      const response = await axios.get(
-        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      console.log(response.data.items)
-      return response.data.items; // Return the tracks
-    } catch (error) {
-      console.error("Error fetching playlist tracks:", error);
-      return [];
+    if (token) {
+      fetchUserPlaylists(token);
     }
-  };
+  }, [token]);
 
   useEffect(() => {
+    const fetchTracksFromPlaylist = async (playlistId: string, token: string) => {
+      try {
+        const response = await axios.get(
+          `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return response.data.items; // Return the tracks
+      } catch (error) {
+        console.error("Error fetching playlist tracks:", error);
+        return [];
+      }
+    };
+
     const fetchTracks = async () => {
       if (!selectedPlaylistId || !token) return;
 
       try {
         const tracks = await fetchTracksFromPlaylist(selectedPlaylistId, token);
         setFeaturedTracks(tracks);
-        console.log(tracks)
       } catch (error) {
         console.error("Error fetching playlist tracks:", error);
       }
@@ -108,31 +109,6 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
 
     fetchTracks();
   }, [selectedPlaylistId, token]);
-
-  useEffect(() => {
-    const fetchFeaturedTracks = async () => {
-      if (!token) return;
-
-      try {
-        // Fetch user's playlists
-        const playlists = await fetchUserPlaylists(token);
-        if (playlists.length > 0) {
-          // Choose the first playlist for demonstration; modify as needed
-          const playlistId = playlists[0].id;
-
-          // Fetch tracks from the selected playlist
-          const tracks = await fetchTracksFromPlaylist(playlistId, token);
-          setFeaturedTracks(tracks);
-        } else {
-          console.log("No playlists found.");
-        }
-      } catch (error) {
-        console.error("Error fetching featured tracks:", error);
-      }
-    };
-
-    fetchFeaturedTracks();
-  }, [token]);
 
   const handlePlayPreview = (track: any) => {
     if (playingPreview === track.preview_url) {
@@ -209,13 +185,22 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
         <select
           onChange={(e) => setSelectedPlaylistId(e.target.value)}
           value={selectedPlaylistId || ""}
+          className="bg-transparent text-sm"
         >
+          <option value="" className="text-black bg-transparent">Select a Playlist</option>
           {playlists.map((playlist: any) => (
-            <option key={playlist.id} value={playlist.id}>
+            <option key={playlist.id} className="text-black bg-transparent" value={playlist.id}>
               {playlist.name}
             </option>
           ))}
         </select>
+
+        {currentTrack && (
+          <div className="current-track-info mt-4">
+            <p className="text-lg text-white">Currently Playing:</p>
+            <p className="text-sm text-gray-300">{currentTrack.name} by {currentTrack.artists[0]?.name}</p>
+          </div>
+        )}
 
         <Slider {...sliderSettings} className="mt-6">
           {featuredTracks.map((item, index) => (
@@ -224,15 +209,12 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
               className="relative rounded-2xl h-40 sm:h-96 flex items-center justify-center overflow-hidden"
             >
               <img
-                src={
-                  item?.track?.album?.images?.[1]?.url || "default-image-url"
-                }
+                src={item?.track?.album?.images?.[1]?.url || "default-image-url"}
                 alt={item?.track?.name || "Unknown Track"}
                 className="h-full w-full object-cover" // Ensure the image covers the container
               />
               <div className="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                {" "}
-                {/* Semi-transparent background */}
+                {" "}{/* Semi-transparent background */}
                 <h1 className="font-bold text-white sm:text-2xl">
                   {item?.track?.name || "Unknown Track"}
                 </h1>

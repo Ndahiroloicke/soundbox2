@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
 import play from '../assets/playbutton.png';
-import { useState } from 'react';
 import BottomPlayer from './bottomplayer';
 
 interface TopsongProps {
@@ -9,13 +8,12 @@ interface TopsongProps {
   artist: string;
   imageUrl: string;
   previewUrl: string | null;
-  onPlay: (previewUrl: string | null) => void; // Add this prop
+  onPlay: (previewUrl: string | null) => void;
+  isPlaying: boolean;
 }
 
-const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl, onPlay }) => {
+const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl, onPlay, isPlaying }) => {
   const [showNotification, setShowNotification] = useState<boolean>(false);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [clickPlay, setClickPlay] = useState<boolean>(false);
 
   const handlePlayPreview = () => {
     if (!previewUrl) {
@@ -23,16 +21,8 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
       setTimeout(() => setShowNotification(false), 3000);
       return;
     }
-    setClickPlay(true)
-    setIsPlaying(true) // Call the onPlay function
+    onPlay(previewUrl); // Use the onPlay function passed down
   };
-
-  const handleNotificationChange = (show: boolean) => {
-    setShowNotification(show);
-    if (show) {
-      setTimeout(() => setShowNotification(false), 3000); // Auto-hide after 3 seconds
-    }
-  }
 
   return (
     <div>
@@ -50,20 +40,23 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
             <p className='text-gray-500 text-xs'>{artist}</p>
           </div>
         </div>
-        <img src={play} alt="play" onClick={handlePlayPreview} className='size-6 cursor-pointer' />
+        <img
+          src={play}
+          alt="play"
+          onClick={handlePlayPreview}
+          className={`size-6 cursor-pointer ${isPlaying ? 'text-green-500' : ''}`} // Example styling for playing state
+        />
       </div>
-      {
-        isPlaying && (
-          <BottomPlayer
-          clickPlay={clickPlay}
+      {isPlaying && (
+        <BottomPlayer
+          clickPlay={isPlaying} // Pass clickPlay based on isPlaying
           image={imageUrl}
           songname={title}
           previewUrl={previewUrl}
           artistname={artist}
-          onNotificationChange={handleNotificationChange}
-          />
-        )
-      }
+          onNotificationChange={(show) => setShowNotification(show)}
+        />
+      )}
     </div>
   );
 };

@@ -64,16 +64,17 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
     }
 
     if (audio) {
-      if (isPlaying) {
+      if (isPlaying && previewUrl === currentPreviewUrl) {
         audio.pause();
         setIsPlaying(false);
       } else {
         audio.pause(); // Pause current audio
-        setAudio(new Audio(previewUrl));
+        const newAudio = new Audio(previewUrl);
+        setAudio(newAudio);
         setCurrentPreviewUrl(previewUrl);
-        audio.play();
+        newAudio.play();
         setIsPlaying(true);
-        audio.onended = () => {
+        newAudio.onended = () => {
           setIsPlaying(false);
         };
       }
@@ -115,6 +116,7 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
               artist={track.artists[0].name}
               imageUrl={track.album.images[0]?.url}
               onPlay={handlePlayPreview} // Pass down the play handler
+              isPlaying={isPlaying && track.preview_url === currentPreviewUrl} // Conditional styling or functionality
             />
           ))}
         </div>
