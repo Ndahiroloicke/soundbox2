@@ -8,7 +8,7 @@ interface TopsongProps {
   title: string;
   artist: string;
   imageUrl: string;
-  previewUrl: string | undefined;
+  previewUrl: string | null;
   onPlay: (previewUrl: string | null) => void; // Add this prop
 }
 
@@ -24,8 +24,7 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
       return;
     }
     setClickPlay(true)
-    setIsPlaying(true)
-    onPlay(previewUrl); // Call the onPlay function
+    setIsPlaying(true) // Call the onPlay function
   };
 
   const handleNotificationChange = (show: boolean) => {

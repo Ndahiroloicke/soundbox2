@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from "react";
-import Imagebox from "./imagebox";
 import axios from "axios";
+import Imagebox from "./imagebox";
 
 interface HorizontalProps {
   token: string | null;
+  playingPreview: string | null;
+  onPlayPreview: (previewUrl: string | null, track: any) => void;
 }
 
-const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token }) => {
-  const [albums, setAlbums] = useState<any[]>([]);
+const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPreview }) => {
+  const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [itemsToFetch, setItemsToFetch] = useState<number>(6);
+  const [itemsToFetch, setItemsToFetch] = useState<number>(30); // Fetch more initially
 
   useEffect(() => {
     const updateItemsToFetch = () => {
-      if (window.matchMedia("(max-width: 640px)").matches) {
-        setItemsToFetch(4); // Mobile
-      } else {
-        setItemsToFetch(6); // Larger screens
-      }
+      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15);
     };
 
     updateItemsToFetch();
@@ -31,52 +29,59 @@ const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token }) => {
   useEffect(() => {
     if (!token) return;
 
-    const fetchNewReleases = async () => {
+    const fetchRecommendedTracks = async () => {
+      setLoading(true);
       try {
+        // Adjust the parameters as needed
         const response = await axios.get(
-          `https://api.spotify.com/v1/browse/new-releases?limit=${itemsToFetch}`,
+          `https://api.spotify.com/v1/recommendations?limit=${itemsToFetch}&seed_genres=pop`, // Example seed genre
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setAlbums(response.data.albums.items || []);
-        console.log(response.data.albums);
+        // Filter tracks with preview URLs and limit to 7 tracks
+        const tracksWithPreviewUrl = response.data.tracks
+          .filter((track: any) => track.preview_url)
+          .slice(0, 6); // Limit to 7 tracks
+        setTracks(tracksWithPreviewUrl);
       } catch (error) {
-        console.log("Error has occurred:", error);
+        console.error("Error fetching recommended tracks:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNewReleases();
+    fetchRecommendedTracks();
   }, [token, itemsToFetch]);
 
   return (
     <div className="text-white mt-9">
       <div className="mb-6">
-        <h1 className="font-extrabold text-lg sm:text-2xl">New Releases</h1>
+        <h1 className="font-extrabold text-lg sm:text-2xl">Recommended Tracks</h1>
       </div>
-      <div className="flex overflow-x-auto space-x-4 pb-4"> {/* Enable horizontal scrolling */}
+      <div className="flex overflow-x-auto space-x-4 pb-4">
         {loading ? (
           <p>Loading...</p>
-        ) : albums.length > 0 ? (
-          albums.map((albumData: any) => (
+        ) : tracks.length > 0 ? (
+          tracks.map((track: any) => (
             <Imagebox
-              key={albumData.id}
-              previewUrl={albumData.preview_url || ""}
-              image={albumData.images[1]?.url || "default-image-url"}
-              songname={albumData.name}
-              artistname={albumData.artists[0]?.name || "Unknown Artist"}
+              key={track.id}
+              previewUrl={track.preview_url || ""}
+              image={track.album.images[1]?.url || "default-image-url"}
+              songname={track.name}
+              artistname={track.artists[0]?.name || "Unknown Artist"}
+              playingPreview={playingPreview}
+              onPlay={() => onPlayPreview(track.preview_url, track)} // Pass the onPlayPreview prop
             />
           ))
         ) : (
-          <p>No albums found</p>
+          <p>No tracks found</p>
         )}
       </div>
     </div>
   );
 };
 
-export default HorizontalNewReleases;
+export default HorizontalRecommendedTracks;

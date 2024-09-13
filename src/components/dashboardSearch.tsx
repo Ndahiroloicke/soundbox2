@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import girlposter from "../assets/postergirl.png";
-import greenbar from "../assets/greenbar.png";
-import lightbar from "../assets/lightbar.png";
+import Slider from "react-slick";
 import Horizontal from "./horizontalfeed";
 import HorizontalNewRealeased from "./horizontalNew";
 import HorizontalTopPicks from "./horizontaltrending";
 import BottomPlayer from "./bottomplayer";
 
-interface DashboardProps {
+interface DashboardSearchProps {
   token: string | null;
-  playingPreview: string | null; // Added to receive the current playing preview URL
-  onPlayPreview: (url: string | null) => void; // Added to handle play preview
+  playingPreview: string | null;
+  onPlayPreview: (previewUrl: string | null, track: any) => void;
 }
 
-const DashboardSearch: React.FC<DashboardProps> = ({ token, playingPreview, onPlayPreview }) => {
+const DashboardSearch: React.FC<DashboardSearchProps> = ({
+  token,
+  playingPreview,
+  onPlayPreview,
+}) => {
   const [query, setQuery] = useState<string>("");
   const [results, setResults] = useState<any[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(query);
   const [focused, setFocused] = useState<boolean>(false);
-  const [showNotification, setShowNotification] = useState<boolean>(false);
+  const [currentTrack, setCurrentTrack] = useState<any>(null);
+  const [featuredTracks, setFeaturedTracks] = useState<any[]>([]);
+  const [playlists, setPlaylists] = useState<any[]>([]);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -50,44 +57,124 @@ const DashboardSearch: React.FC<DashboardProps> = ({ token, playingPreview, onPl
     fetchSearchResults();
   }, [debouncedQuery, token]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (!(event.target as HTMLElement).closest(".search-container")) {
-        setFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const handleNotificationChange = (show: boolean) => {
-    setShowNotification(show);
-    if (show) {
-      setTimeout(() => setShowNotification(false), 3000);
+  const fetchUserPlaylists = async (token: string) => {
+    try {
+      const response = await axios.get(
+        `https://api.spotify.com/v1/me/playlists`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data.items)
+      return response.data.items; // Return the user's playlists
+    } catch (error) {
+      console.error("Error fetching user's playlists:", error);
+      return [];
     }
   };
 
+  const fetchTracksFromPlaylist = async (playlistId: string, token: string) => {
+    try {
+      const response = await axios.get(
+        `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(response.data.items)
+      return response.data.items; // Return the tracks
+    } catch (error) {
+      console.error("Error fetching playlist tracks:", error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const fetchTracks = async () => {
+      if (!selectedPlaylistId || !token) return;
+
+      try {
+        const tracks = await fetchTracksFromPlaylist(selectedPlaylistId, token);
+        setFeaturedTracks(tracks);
+        console.log(tracks)
+      } catch (error) {
+        console.error("Error fetching playlist tracks:", error);
+      }
+    };
+
+    fetchTracks();
+  }, [selectedPlaylistId, token]);
+
+  useEffect(() => {
+    const fetchFeaturedTracks = async () => {
+      if (!token) return;
+
+      try {
+        // Fetch user's playlists
+        const playlists = await fetchUserPlaylists(token);
+        if (playlists.length > 0) {
+          // Choose the first playlist for demonstration; modify as needed
+          const playlistId = playlists[0].id;
+
+          // Fetch tracks from the selected playlist
+          const tracks = await fetchTracksFromPlaylist(playlistId, token);
+          setFeaturedTracks(tracks);
+        } else {
+          console.log("No playlists found.");
+        }
+      } catch (error) {
+        console.error("Error fetching featured tracks:", error);
+      }
+    };
+
+    fetchFeaturedTracks();
+  }, [token]);
+
+  const handlePlayPreview = (track: any) => {
+    if (playingPreview === track.preview_url) {
+      onPlayPreview(null, track);
+    } else {
+      setCurrentTrack(track);
+      onPlayPreview(track.preview_url, track);
+    }
+  };
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    arrows: true,
+  };
+
   return (
-    <div className="my-7 search-container">
+    <div className="my-7 search-container relative overflow-hidden">
       <input
         type="text"
         value={query}
         onFocus={() => setFocused(true)}
         onChange={(e) => setQuery(e.target.value)}
-        className="bg-white sm:w-[800px] h-[30px] items-end flex w-[200px] justify-end sm:h-[40px] sm:rounded-xl placeholder-gray-700 text-sm px-4 outline-none"
+        className="bg-white w-full max-w-[800px] h-[40px] rounded-xl placeholder-gray-700 text-sm px-4 outline-none"
         placeholder="Search for music, artist, album..."
       />
       {focused && results.length > 0 && (
-        <ul className="absolute bg-white text-black mt-2 w-[800px] max-h-[300px] overflow-y-auto rounded-xl shadow-lg">
+        <ul className="absolute bg-white text-black mt-2 w-full max-w-[800px] max-h-[300px] overflow-y-auto rounded-xl shadow-lg z-10">
           {results.map((track) => (
-            <li key={track.id} className="p-2 hover:bg-gray-200 cursor-pointer flex justify-between items-center">
+            <li
+              key={track.id}
+              className="p-2 hover:bg-gray-200 cursor-pointer flex justify-between items-center"
+            >
               <div
                 className="flex items-center"
                 onClick={() => {
-                  onPlayPreview(track.preview_url); // Use the passed function
+                  handlePlayPreview(track);
                   setFocused(false);
                 }}
               >
@@ -106,54 +193,85 @@ const DashboardSearch: React.FC<DashboardProps> = ({ token, playingPreview, onPl
               <button
                 className="ml-4 bg-green-500 text-white p-2 rounded-full"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent triggering the parent onClick
-                  onPlayPreview(track.preview_url); // Use the passed function
+                  e.stopPropagation();
+                  handlePlayPreview(track);
                 }}
               >
                 Play
               </button>
-              {playingPreview === track.preview_url && (
-                <BottomPlayer
-                  clickPlay={true}
-                  image={track.album.images[1]?.url}
-                  songname={track.name}
-                  previewUrl={track.preview_url}
-                  artistname={track.artists[0]?.name}
-                  onNotificationChange={handleNotificationChange}
-                />
-              )}
             </li>
           ))}
         </ul>
       )}
+
       <div className="text-white font-bold text-2xl mt-16">
         <p className="text-sm sm:text-2xl">Hello, Good Morning👋</p>
-        <div className="bg-gradient-to-t from-blue-500 to-blue-300 rounded-2xl mt-6 via-blue-400 lg:w-[800px] sm:w-[98vw] h-40 sm:h-60 flex lg:justify-end lg:items-end">
-          <div className="flex sm:gap-x-20 items-center">
-            <div className="sm:ml-5">
-              <h1 className="font-bold sm:text-5xl">POP!</h1>
-              <p className="font-semibold text-sm">
-                By <span className="text-[#B6FF52] text-xs font-bold">Im Nayeon</span>
-              </p>
+        <select
+          onChange={(e) => setSelectedPlaylistId(e.target.value)}
+          value={selectedPlaylistId || ""}
+        >
+          {playlists.map((playlist: any) => (
+            <option key={playlist.id} value={playlist.id}>
+              {playlist.name}
+            </option>
+          ))}
+        </select>
+
+        <Slider {...sliderSettings} className="mt-6">
+          {featuredTracks.map((item, index) => (
+            <div
+              key={index}
+              className="relative rounded-2xl h-40 sm:h-96 flex items-center justify-center overflow-hidden"
+            >
+              <img
+                src={
+                  item?.track?.album?.images?.[1]?.url || "default-image-url"
+                }
+                alt={item?.track?.name || "Unknown Track"}
+                className="h-full w-full object-cover" // Ensure the image covers the container
+              />
+              <div className="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                {" "}
+                {/* Semi-transparent background */}
+                <h1 className="font-bold text-white sm:text-2xl">
+                  {item?.track?.name || "Unknown Track"}
+                </h1>
+                <p className="font-semibold text-gray-300 text-sm">
+                  By{" "}
+                  <span className="text-[#B6FF52] text-xs font-bold">
+                    {item?.track?.artists?.[0]?.name || "Unknown Artist"}
+                  </span>
+                </p>
+              </div>
             </div>
-            <img src={girlposter} alt="" className="h-auto size-[40%] sm:size-[100%] mt-auto" />
-          </div>
-          <div className="flex flex-row mt-auto align-bottom mb-2 sm:mr-5 text-[9px] gap-x-1">
-            <i className="bx bx-left-arrow-alt bg-transparent sm:rounded-lg rounded-md border-2 py-1 px-2"></i>
-            <i className="bx bx-right-arrow-alt bg-transparent sm:rounded-lg rounded-md border-2 py-1 px-2"></i>
-          </div>
-        </div>
+          ))}
+        </Slider>
       </div>
-      <div className="sm:flex hidden justify-center items-center mt-6 gap-x-3">
-        <img src={greenbar} alt="" />
-        <img src={lightbar} alt="" />
-        <img src={lightbar} alt="" />
-      </div>
+
       <div>
-        <Horizontal token={token} />
-        <HorizontalNewRealeased token={token} />
-        <HorizontalTopPicks token={token} />
+        <HorizontalNewRealeased
+          token={token}
+          playingPreview={playingPreview}
+          onPlayPreview={onPlayPreview}
+        />
+        <HorizontalTopPicks
+          token={token}
+          playingPreview={playingPreview}
+          onPlayPreview={onPlayPreview}
+        />
+        <HorizontalTopPicks
+          token={token}
+          playingPreview={playingPreview}
+          onPlayPreview={onPlayPreview}
+        />
+        <Horizontal
+          token={token}
+          playingPreview={playingPreview}
+          onPlayPreview={onPlayPreview}
+        />
       </div>
+
+      <div className="flex-grow"></div>
     </div>
   );
 };
