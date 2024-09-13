@@ -7,7 +7,7 @@ const Login: React.FC = () => {
 
   const handleClick = () => {
     const clientId = "7e211afa51c643c382cc8e1faf01d531";
-    const redirectUrl = "https://your-production-url.com/login"; // Update this for production
+    const redirectUrl = "https://soundbox-green.vercel.app/login"; // Ensure this matches the registered URI
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
       "user-top-read",
       "user-read-recently-played",
     ];
-
+  
     window.location.href = `${apiUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&scope=${scope.join(
       " "
     )}&response_type=token&show_dialog=true`;
