@@ -185,7 +185,7 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
         <select
           onChange={(e) => setSelectedPlaylistId(e.target.value)}
           value={selectedPlaylistId || ""}
-          className="bg-transparent text-sm"
+          className="bg-transparent border-none text-sm"
         >
           <option value="" className="text-black bg-transparent">Select a Playlist</option>
           {playlists.map((playlist: any) => (

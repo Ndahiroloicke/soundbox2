@@ -46,8 +46,15 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
           .filter((track: any) => track.preview_url)
           .slice(0, 6); // Limit to 7 tracks
         setTracks(tracksWithPreviewUrl);
-      } catch (error) {
-        console.error("Error fetching recommended tracks:", error);
+      } catch (error: any) {
+        if (error.response && error.response.status === 429) {
+          const retryAfter = error.response.headers['retry-after'];
+          console.error(`Too many requests. Retry after ${retryAfter} seconds.`);
+          // Optionally, implement a retry mechanism after waiting for the specified time
+        } else {
+          // Handle other errors
+          console.error('Error fetching tracks:', error);
+        }
       } finally {
         setLoading(false);
       }
