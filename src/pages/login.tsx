@@ -7,7 +7,7 @@ const Login: React.FC = () => {
 
   const handleClick = () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const redirectUrl = 'https://soundbox-green.vercel.app/#/login'
+    const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL;
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
@@ -25,26 +25,40 @@ const Login: React.FC = () => {
     )}&response_type=token&show_dialog=true`;
   };
 
-  useEffect(() => {
-    const handleToken = () => {
-      let storedToken = sessionStorage.getItem("token");
+  const parseTokenFromHash = () => {
+    const hash = window.location.hash;
+    if (hash) {
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      return accessToken;
+    }
+    return null;
+  };
 
-      if (!storedToken) {
-        const hash = window.location.hash;
-        if (hash) {
-          const tokenFromHash = new URLSearchParams(hash.substring(1)).get("access_token");
-          console.log(tokenFromHash)
+  // Async useEffect to wait for token storage correctly
+  useEffect(() => {
+    const handleToken = async () => {
+      try {
+        let storedToken = window.localStorage.getItem("token");
+
+        if (!storedToken) {
+          console.log("No token in localStorage, attempting to parse from URL...");
+          const tokenFromHash = parseTokenFromHash();
+          console.log("Parsed token from URL hash:", tokenFromHash);
 
           if (tokenFromHash) {
-            sessionStorage.setItem("token", tokenFromHash);
+            window.localStorage.setItem("token", tokenFromHash);
             setToken(tokenFromHash);
             window.location.hash = ""; // Clear the hash
-            console.log(tokenFromHash)
+            console.log("Token stored in localStorage and state updated.");
             navigate("/dashboard");
           }
+        } else {
+          console.log("Token found in localStorage:", storedToken);
+          setToken(storedToken);
         }
-      } else {
-        setToken(storedToken);
+      } catch (error) {
+        console.error("Error during token extraction:", error);
       }
     };
 
@@ -52,7 +66,7 @@ const Login: React.FC = () => {
   }, [navigate]);
 
   const logout = () => {
-    sessionStorage.removeItem("token");
+    window.localStorage.removeItem("token");
     setToken(null);
   };
 
