@@ -25,40 +25,24 @@ const Login: React.FC = () => {
     )}&response_type=token&show_dialog=true`;
   };
 
-  const parseTokenFromHash = () => {
-    const hash = window.location.hash;
-    if (hash) {
-      const hashParams = new URLSearchParams(hash.substring(1));
-      const accessToken = hashParams.get("access_token");
-      return accessToken;
-    }
-    return null;
-  };
-
-  // Async useEffect to wait for token storage correctly
   useEffect(() => {
-    const handleToken = async () => {
-      try {
-        let storedToken = window.localStorage.getItem("token");
+    const handleToken = () => {
+      let storedToken = sessionStorage.getItem("token");
 
-        if (!storedToken) {
-          console.log("No token in localStorage, attempting to parse from URL...");
-          const tokenFromHash = parseTokenFromHash();
-          console.log("Parsed token from URL hash:", tokenFromHash);
+      if (!storedToken) {
+        const hash = window.location.hash;
+        if (hash) {
+          const tokenFromHash = new URLSearchParams(hash.substring(1)).get("access_token");
 
           if (tokenFromHash) {
-            window.localStorage.setItem("token", tokenFromHash);
+            sessionStorage.setItem("token", tokenFromHash);
             setToken(tokenFromHash);
             window.location.hash = ""; // Clear the hash
-            console.log("Token stored in localStorage and state updated.");
             navigate("/dashboard");
           }
-        } else {
-          console.log("Token found in localStorage:", storedToken);
-          setToken(storedToken);
         }
-      } catch (error) {
-        console.error("Error during token extraction:", error);
+      } else {
+        setToken(storedToken);
       }
     };
 
@@ -66,7 +50,7 @@ const Login: React.FC = () => {
   }, [navigate]);
 
   const logout = () => {
-    window.localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setToken(null);
   };
 
