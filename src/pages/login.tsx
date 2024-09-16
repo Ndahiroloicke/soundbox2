@@ -5,7 +5,6 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>("");
 
-  // Function to handle Spotify login
   const handleClick = () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
     const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL;
@@ -26,41 +25,49 @@ const Login: React.FC = () => {
     )}&response_type=token&show_dialog=true`;
   };
 
-  // Function to parse the token from URL hash
   const parseTokenFromHash = () => {
     const hash = window.location.hash;
     if (hash) {
-      const hashParams = new URLSearchParams(hash.substring(1)); // Remove '#' and parse the hash
+      const hashParams = new URLSearchParams(hash.substring(1));
       const accessToken = hashParams.get("access_token");
       return accessToken;
     }
     return null;
   };
 
-  // UseEffect to handle token extraction and storage
+  // Async useEffect to wait for token storage correctly
   useEffect(() => {
-    let storedToken = window.localStorage.getItem("token");
+    const handleToken = async () => {
+      try {
+        let storedToken = window.localStorage.getItem("token");
 
-    if (!storedToken) {
-      const tokenFromHash = parseTokenFromHash();
-      if (tokenFromHash) {
-        window.localStorage.setItem("token", tokenFromHash);
-        setToken(tokenFromHash);
-        window.location.hash = ""; // Clear the hash
-        navigate("/dashboard");
-        console.log("Hash:", window.location.hash);
-        console.log("Parsed Token:", parseTokenFromHash());
-        console.log("Stored Token:", storedToken);
+        if (!storedToken) {
+          console.log("No token in localStorage, attempting to parse from URL...");
+          const tokenFromHash = parseTokenFromHash();
+          console.log("Parsed token from URL hash:", tokenFromHash);
+
+          if (tokenFromHash) {
+            window.localStorage.setItem("token", tokenFromHash);
+            setToken(tokenFromHash);
+            window.location.hash = ""; // Clear the hash
+            console.log("Token stored in localStorage and state updated.");
+            navigate("/dashboard");
+          }
+        } else {
+          console.log("Token found in localStorage:", storedToken);
+          setToken(storedToken);
+        }
+      } catch (error) {
+        console.error("Error during token extraction:", error);
       }
-    } else {
-      setToken(storedToken);
-    }
+    };
+
+    handleToken();
   }, [navigate]);
 
-  // Function to handle logout
   const logout = () => {
     window.localStorage.removeItem("token");
-    setToken(null); // Clear the token state after logout
+    setToken(null);
   };
 
   return (
