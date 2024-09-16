@@ -7,7 +7,7 @@ const Login: React.FC = () => {
 
   const handleClick = () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL;
+    const redirectUrl = 'https://soundbox-green.vercel.app/#/login'
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
@@ -33,11 +33,13 @@ const Login: React.FC = () => {
         const hash = window.location.hash;
         if (hash) {
           const tokenFromHash = new URLSearchParams(hash.substring(1)).get("access_token");
+          console.log(tokenFromHash)
 
           if (tokenFromHash) {
             sessionStorage.setItem("token", tokenFromHash);
             setToken(tokenFromHash);
             window.location.hash = ""; // Clear the hash
+            console.log(tokenFromHash)
             navigate("/dashboard");
           }
         }
