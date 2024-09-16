@@ -27,19 +27,30 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
+    console.log("URL Hash:", hash); // Check the URL hash
+  
     let token = window.localStorage.getItem("token");
+    console.log("Existing Token:", token); // Check if a token already exists in local storage
   
     if (!token && hash) {
-      token = hash.substring(1).split("&")[0].split("=")[1];
-      window.location.hash = ""; // Clear the hash
-      window.localStorage.setItem("token", token);
+      const hashParams = new URLSearchParams(hash.substring(1));
+      token = hashParams.get("access_token");
+      console.log("Extracted Token:", token); // Check the extracted token
+  
+      window.location.hash = "";
+      
+      if (token) {
+        window.localStorage.setItem("token", token);
+      }
     }
   
     setToken(token || "");
+  
     if (token) {
       navigate("/dashboard");
     }
   }, [navigate]);
+  
   
   const logout = () => {
     window.localStorage.removeItem("token");
