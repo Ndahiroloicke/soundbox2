@@ -6,8 +6,8 @@ const Login: React.FC = () => {
   const [token, setToken] = useState<string>("");
 
   const handleClick = () => {
-    const clientId = "7e211afa51c643c382cc8e1faf01d531";
-    const redirectUrl = "https://soundbox-green.vercel.app/login"; // Ensure this matches the registered URI
+    const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+    const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL; // Use Vite's environment variables
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
@@ -19,25 +19,25 @@ const Login: React.FC = () => {
       "user-top-read",
       "user-read-recently-played",
     ];
-  
+
     window.location.href = `${apiUrl}?client_id=${clientId}&redirect_uri=${redirectUrl}&scope=${scope.join(
       " "
     )}&response_type=token&show_dialog=true`;
   };
-  
+
   useEffect(() => {
     const hash = window.location.hash;
     let token = window.localStorage.getItem("token");
-  
+
     console.log("Hash:", hash); // Debugging
     console.log("Token before parsing:", token); // Debugging
-  
+
     if (!token && hash) {
       token = hash.substring(1).split("&")[0].split("=")[1];
       window.location.hash = "";
       window.localStorage.setItem("token", token);
     }
-  
+
     console.log("Token after parsing:", token); // Debugging
     setToken(token || "");
     if (token) {

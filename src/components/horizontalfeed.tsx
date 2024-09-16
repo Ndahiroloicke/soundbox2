@@ -14,7 +14,7 @@ const Horizontal: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPr
 
   useEffect(() => {
     const updateItemsToFetch = () => {
-      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 10 : 20);
+      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 6 : 10);
     };
 
     updateItemsToFetch();
