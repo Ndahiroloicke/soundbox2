@@ -7,7 +7,7 @@ const Login: React.FC = () => {
 
   const handleClick = () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL; // Use Vite's environment variables
+    const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL;
     const apiUrl = "https://accounts.spotify.com/authorize";
     const scope = [
       "user-read-email",
@@ -27,34 +27,28 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     const hash = window.location.hash;
-    console.log("URL Hash:", hash); // Check the URL hash
-  
     let token = window.localStorage.getItem("token");
-    console.log("Existing Token:", token); // Check if a token already exists in local storage
-  
+
+    // Extract token from hash if it exists
     if (!token && hash) {
-      const hashParams = new URLSearchParams(hash.substring(1));
+      const hashParams = new URLSearchParams(hash.substring(1)); // Remove "#" and parse the hash
       token = hashParams.get("access_token");
-      console.log("Extracted Token:", token); // Check the extracted token
-  
-      window.location.hash = "";
-      
+
       if (token) {
+        window.location.hash = ""; // Clear the hash
         window.localStorage.setItem("token", token);
+        setToken(token);
+        navigate("/dashboard");
       }
     }
-  
+
+    // Update the token state if it exists in local storage
     setToken(token || "");
-  
-    if (token) {
-      navigate("/dashboard");
-    }
   }, [navigate]);
-  
-  
+
   const logout = () => {
     window.localStorage.removeItem("token");
-    setToken(""); // Clear the token state after logout
+    setToken("");
   };
 
   return (
