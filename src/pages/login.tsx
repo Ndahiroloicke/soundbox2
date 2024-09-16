@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string | null>("");
 
+  // Function to handle Spotify login
   const handleClick = () => {
     const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
     const redirectUrl = import.meta.env.VITE_SPOTIFY_REDIRECT_URL;
@@ -25,30 +26,41 @@ const Login: React.FC = () => {
     )}&response_type=token&show_dialog=true`;
   };
 
-  useEffect(() => {
+  // Function to parse the token from URL hash
+  const parseTokenFromHash = () => {
     const hash = window.location.hash;
-    let token = window.localStorage.getItem("token");
-
-    // Extract token from hash if it exists
-    if (!token && hash) {
-      const hashParams = new URLSearchParams(hash.substring(1)); // Remove "#" and parse the hash
-      token = hashParams.get("access_token");
-
-      if (token) {
-        window.location.hash = ""; // Clear the hash
-        window.localStorage.setItem("token", token);
-        setToken(token);
-        navigate("/dashboard");
-      }
+    if (hash) {
+      const hashParams = new URLSearchParams(hash.substring(1)); // Remove '#' and parse the hash
+      const accessToken = hashParams.get("access_token");
+      return accessToken;
     }
+    return null;
+  };
 
-    // Update the token state if it exists in local storage
-    setToken(token || "");
+  // UseEffect to handle token extraction and storage
+  useEffect(() => {
+    let storedToken = window.localStorage.getItem("token");
+
+    if (!storedToken) {
+      const tokenFromHash = parseTokenFromHash();
+      if (tokenFromHash) {
+        window.localStorage.setItem("token", tokenFromHash);
+        setToken(tokenFromHash);
+        window.location.hash = ""; // Clear the hash
+        navigate("/dashboard");
+        console.log("Hash:", window.location.hash);
+        console.log("Parsed Token:", parseTokenFromHash());
+        console.log("Stored Token:", storedToken);
+      }
+    } else {
+      setToken(storedToken);
+    }
   }, [navigate]);
 
+  // Function to handle logout
   const logout = () => {
     window.localStorage.removeItem("token");
-    setToken("");
+    setToken(null); // Clear the token state after logout
   };
 
   return (
