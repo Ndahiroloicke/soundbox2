@@ -6,7 +6,7 @@ import axios from "axios";
 interface UserProfile {
   display_name: string;
   email: string;
-  images: { url: string }[]; // Adjust based on the actual structure
+  images: { url: string }[];
 }
 
 interface TopChartProps {
@@ -63,31 +63,28 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
       return; // Handle no preview URL case
     }
 
+    // Pause the current audio if one is playing
     if (audio) {
-      if (isPlaying && previewUrl === currentPreviewUrl) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        audio.pause(); // Pause current audio
-        const newAudio = new Audio(previewUrl);
-        setAudio(newAudio);
-        setCurrentPreviewUrl(previewUrl);
-        newAudio.play();
-        setIsPlaying(true);
-        newAudio.onended = () => {
-          setIsPlaying(false);
-        };
-      }
-    } else {
-      const newAudio = new Audio(previewUrl);
-      newAudio.play();
-      setAudio(newAudio);
-      setCurrentPreviewUrl(previewUrl);
-      setIsPlaying(true);
-      newAudio.onended = () => {
-        setIsPlaying(false);
-      };
+      audio.pause();
     }
+
+    // If the clicked preview is the same as the current one, toggle playback
+    if (isPlaying && previewUrl === currentPreviewUrl) {
+      setIsPlaying(false);
+      return;
+    }
+
+    // Create a new Audio element for the new preview
+    const newAudio = new Audio(previewUrl);
+    setAudio(newAudio);
+    setCurrentPreviewUrl(previewUrl);
+    setIsPlaying(true);
+
+    // Play the new audio and handle the end of playback
+    newAudio.play();
+    newAudio.onended = () => {
+      setIsPlaying(false);
+    };
   };
 
   return (
@@ -107,18 +104,22 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
       <div className="mt-16">
         <h1 className="font-bold text-xl">Today's Top Charts</h1>
         <div className="flex flex-col gap-y-4 mt-7">
-          {topCharts.map((track, index) => (
-            <Topsong
-              previewUrl={track.preview_url}
-              key={track.id}
-              rank={index + 1}
-              title={track.name}
-              artist={track.artists[0].name}
-              imageUrl={track.album.images[0]?.url}
-              onPlay={handlePlayPreview} // Pass down the play handler
-              isPlaying={isPlaying && track.preview_url === currentPreviewUrl} // Conditional styling or functionality
-            />
-          ))}
+          {topCharts.length > 0 ? (
+            topCharts.map((track, index) => (
+              <Topsong
+                previewUrl={track.preview_url}
+                key={track.id}
+                rank={index + 1}
+                title={track.name}
+                artist={track.artists[0].name}
+                imageUrl={track.album.images[0]?.url}
+                onPlay={handlePlayPreview}
+                isPlaying={isPlaying && track.preview_url === currentPreviewUrl}
+              />
+            ))
+          ) : (
+            <p className="text-gray-500">No top tracks found.</p>
+          )}
         </div>
       </div>
     </div>

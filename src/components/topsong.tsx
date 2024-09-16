@@ -16,12 +16,13 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
   const [showNotification, setShowNotification] = useState<boolean>(false);
 
   const handlePlayPreview = () => {
+    setShowNotification(false); // Reset notification state on new click
     if (!previewUrl) {
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
       return;
     }
-    onPlay(previewUrl); // Use the onPlay function passed down
+    onPlay(previewUrl);
   };
 
   return (
@@ -34,7 +35,7 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
       <div className='flex flex-row gap-x-6 items-center'>
         <h1 className='font-bold'>#{rank < 10 ? `0${rank}` : rank}</h1>
         <div className='flex flex-row gap-2'>
-          <img src={imageUrl} alt={title} className='size-10 rounded-lg' />
+          <img src={imageUrl} alt={title} className='w-10 h-10 rounded-lg' />
           <div className='text-sm w-20'>
             <h1 className='font-bold text-xs'>{title}</h1>
             <p className='text-gray-500 text-xs'>{artist}</p>
@@ -44,12 +45,12 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
           src={play}
           alt="play"
           onClick={handlePlayPreview}
-          className={`size-6 cursor-pointer ${isPlaying ? 'text-green-500' : ''}`} // Example styling for playing state
+          className={`w-6 h-6 cursor-pointer ${isPlaying ? 'text-green-500' : ''}`}
         />
       </div>
       {isPlaying && (
         <BottomPlayer
-          clickPlay={isPlaying} // Pass clickPlay based on isPlaying
+          clickPlay={isPlaying}
           image={imageUrl}
           songname={title}
           previewUrl={previewUrl}
