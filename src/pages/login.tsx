@@ -28,23 +28,19 @@ const Login: React.FC = () => {
   useEffect(() => {
     const hash = window.location.hash;
     let token = window.localStorage.getItem("token");
-
-    console.log("Hash:", hash); // Debugging
-    console.log("Token before parsing:", token); // Debugging
-
+  
     if (!token && hash) {
       token = hash.substring(1).split("&")[0].split("=")[1];
-      window.location.hash = "";
+      window.location.hash = ""; // Clear the hash
       window.localStorage.setItem("token", token);
     }
-
-    console.log("Token after parsing:", token); // Debugging
+  
     setToken(token || "");
     if (token) {
       navigate("/dashboard");
     }
   }, [navigate]);
-
+  
   const logout = () => {
     window.localStorage.removeItem("token");
     setToken(""); // Clear the token state after logout
