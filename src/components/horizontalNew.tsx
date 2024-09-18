@@ -11,7 +11,7 @@ interface HorizontalProps {
 const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPreview }) => {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [itemsToFetch, setItemsToFetch] = useState<number>(30); // Fetch more initially
+  // const [itemsToFetch, setItemsToFetch] = useState<number>(30); // Fetch more initially
 
   // useEffect(() => {
   //   const updateItemsToFetch = () => {
@@ -61,7 +61,7 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
     };
 
     fetchRecommendedTracks();
-  }, [token, itemsToFetch]);
+  }, [token]);
 
   return (
     <div className="text-white mt-9">
