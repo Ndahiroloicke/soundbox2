@@ -13,18 +13,18 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
   const [loading, setLoading] = useState<boolean>(true);
   const [itemsToFetch, setItemsToFetch] = useState<number>(30); // Fetch more initially
 
-  useEffect(() => {
-    const updateItemsToFetch = () => {
-      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15);
-    };
+  // useEffect(() => {
+  //   const updateItemsToFetch = () => {
+  //     setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15);
+  //   };
 
-    updateItemsToFetch();
-    window.addEventListener("resize", updateItemsToFetch);
+  //   updateItemsToFetch();
+  //   window.addEventListener("resize", updateItemsToFetch);
 
-    return () => {
-      window.removeEventListener("resize", updateItemsToFetch);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", updateItemsToFetch);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -34,7 +34,7 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
       try {
         // Adjust the parameters as needed
         const response = await axios.get(
-          `https://api.spotify.com/v1/recommendations?limit=${itemsToFetch}&seed_genres=pop`, // Example seed genre
+          `https://api.spotify.com/v1/recommendations?limit=25&seed_genres=pop`, // Example seed genre
           {
             headers: {
               Authorization: `Bearer ${token}`,

@@ -13,18 +13,18 @@ const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token, playingPrevie
   const [loading, setLoading] = useState<boolean>(true);
   const [itemsToFetch, setItemsToFetch] = useState<number>(15); // Fetch more initially
 
-  useEffect(() => {
-    const updateItemsToFetch = () => {
-      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15); // Adjust as needed
-    };
+  // useEffect(() => {
+  //   const updateItemsToFetch = () => {
+  //     setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15); // Adjust as needed
+  //   };
 
-    updateItemsToFetch();
-    window.addEventListener("resize", updateItemsToFetch);
+  //   updateItemsToFetch();
+  //   window.addEventListener("resize", updateItemsToFetch);
 
-    return () => {
-      window.removeEventListener("resize", updateItemsToFetch);
-    };
-  }, []);
+  //   return () => {
+  //     window.removeEventListener("resize", updateItemsToFetch);
+  //   };
+  // }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -33,7 +33,7 @@ const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token, playingPrevie
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://api.spotify.com/v1/recommendations?limit=${itemsToFetch}&seed_genres=pop,rock,hip-hop`,
+          `https://api.spotify.com/v1/recommendations?limit=25&seed_genres=pop,rock,hip-hop`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
