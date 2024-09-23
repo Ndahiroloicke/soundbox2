@@ -8,7 +8,7 @@ import lightbar from "../assets/lightbar.png";
 const AttractiveFeed = () => {
   return (
     <div className="text-white flex-1 flex flex-col items-center">
-      {/* Heading Section */}
+      
       <div className="flex flex-col sm:flex-row items-center mt-20 sm:mt-32">
         <h1 className="text-4xl sm:text-7xl lg:text-8xl font-bold mx-4 sm:mx-0">
           EXPRESS
@@ -26,10 +26,10 @@ const AttractiveFeed = () => {
         </h1>
       </div>
 
-      {/* Main Image */}
+      
       <img src={musicVector} alt="" className="w-full mt-8" />
 
-      {/* Controls and Image Section */}
+      
       <div className="flex flex-col sm:-mt-72 sm:flex-row gap-4 sm:gap-16">
         <div className='flex flex-row gap-2 -ml-14 items-end'>
           <i className='bx bx-left-arrow-alt bg-gradient-to-br from-gray-700 to-gray-800 border-white border-2 sm:py-2 sm:px-3 rounded-sm sm:rounded-xl'></i>
@@ -53,7 +53,7 @@ const AttractiveFeed = () => {
         </div>
       </div>
 
-      {/* Bars Section */}
+     
       <div className="flex flex-row gap-2 mt-8 justify-end mx-8 sm:mx-16">
         <img src={greenbar} alt="" className="w-8 sm:w-16" />
         <img src={lightbar} alt="" className="w-8 sm:w-16"/>

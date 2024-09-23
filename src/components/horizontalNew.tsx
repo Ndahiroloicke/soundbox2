@@ -11,56 +11,48 @@ interface HorizontalProps {
 const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPreview }) => {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [itemsToFetch, setItemsToFetch] = useState<number>(30); // Fetch more initially
+  const [itemsToFetch, setItemsToFetch] = useState<number>(15); 
 
-  // useEffect(() => {
-  //   const updateItemsToFetch = () => {
-  //     setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15);
-  //   };
+  useEffect(() => {
+    const updateItemsToFetch = () => {
+      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 40 : 50); 
+    };
 
-  //   updateItemsToFetch();
-  //   window.addEventListener("resize", updateItemsToFetch);
+    updateItemsToFetch();
+    window.addEventListener("resize", updateItemsToFetch);
 
-  //   return () => {
-  //     window.removeEventListener("resize", updateItemsToFetch);
-  //   };
-  // }, []);
+    return () => {
+      window.removeEventListener("resize", updateItemsToFetch);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) return;
 
-    const fetchRecommendedTracks = async () => {
+    const fetchTracks = async () => {
       setLoading(true);
       try {
-        // Adjust the parameters as needed
         const response = await axios.get(
-          `https://api.spotify.com/v1/recommendations?limit=25&seed_genres=pop`, // Example seed genre
+          `https://api.spotify.com/v1/recommendations?limit=50&seed_genres=pop,rock,hip-hop`, 
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        // Filter tracks with preview URLs and limit to 7 tracks
+        console.log(response.data); 
         const tracksWithPreviewUrl = response.data.tracks
           .filter((track: any) => track.preview_url)
-          .slice(0, 6); // Limit to 7 tracks
+          .slice(0, 100); 
         setTracks(tracksWithPreviewUrl);
-      } catch (error: any) {
-        if (error.response && error.response.status === 429) {
-          const retryAfter = error.response.headers['retry-after'];
-          console.error(`Too many requests. Retry after ${retryAfter} seconds.`);
-          // Optionally, implement a retry mechanism after waiting for the specified time
-        } else {
-          // Handle other errors
-          console.error('Error fetching tracks:', error);
-        }
+      } catch (error) {
+        console.error("Error fetching tracks:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecommendedTracks();
+    fetchTracks();
   }, [token]);
 
   return (
@@ -80,7 +72,7 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
               songname={track.name}
               artistname={track.artists[0]?.name || "Unknown Artist"}
               playingPreview={playingPreview}
-              onPlay={() => onPlayPreview(track.preview_url, track)} // Pass the onPlayPreview prop
+              onPlay={() => onPlayPreview(track.preview_url, track)} 
             />
           ))
         ) : (

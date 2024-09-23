@@ -14,4 +14,22 @@
   body, html {
     overflow-x: hidden; /* Prevents horizontal scrolling */
   }
+
+  .slider-container {
+    height: 400px; /* Adjust this value to make it more compact */
+    max-height: 400px; /* Ensure it doesn't exceed this height */
+    overflow: hidden; /* Hide anything that overflows vertically */
+  }
+  
+  .slider img {
+    object-fit: cover; /* Ensures images fit the container properly */
+    height: 100%; /* Make images take up the full height of the container */
+    width: 100%; /* Make sure images scale with width */
+  }
+  .carousel-container {
+    height: 250px; /* Set appropriate height */
+    max-height: 300px;
+    overflow: hidden; /* Ensure images don't overflow */
+  }
+  
   

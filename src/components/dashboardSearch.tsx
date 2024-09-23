@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Slider from "react-slick";
 import Horizontal from "./horizontalfeed";
-import HorizontalNewRealeased from "./horizontalNew";
+import HorizontalNewReleased from "./horizontalNew";
+import play from "../assets/playbutton.png";
 import HorizontalTopPicks from "./horizontaltrending";
 
 interface DashboardSearchProps {
@@ -23,9 +24,26 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
   const [currentTrack, setCurrentTrack] = useState<any>(null);
   const [featuredTracks, setFeaturedTracks] = useState<any[]>([]);
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [randomContent, setRandomContent] = useState<any[]>([]);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
     null
   );
+  const [greeting, setGreeting] = useState<string>("");
+  const resultsRef = useRef<HTMLUListElement | null>(null);
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const currentHour = new Date().getHours();
+      if (currentHour < 12) {
+        setGreeting("Good Morning 🌅");
+      } else if (currentHour < 18) {
+        setGreeting("Good Afternoon 🌞");
+      } else {
+        setGreeting("Good Evening 🌙");
+      }
+    };
+    updateGreeting();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -67,7 +85,7 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
             },
           }
         );
-        setPlaylists(response.data.items); // Set the playlists here
+        setPlaylists(response.data.items);
       } catch (error) {
         console.error("Error fetching user's playlists:", error);
       }
@@ -75,11 +93,45 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
 
     if (token) {
       fetchUserPlaylists(token);
+      fetchRandomContent(token); // Fetch random content when the token is available
     }
   }, [token]);
 
+  const fetchRandomContent = async (token: string) => {
+    try {
+      const response = await axios.get(
+        `https://api.spotify.com/v1/browse/categories`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const categories = response.data.categories.items;
+      const randomPromises = categories.map(async (category: any) => {
+        const playlistsResponse = await axios.get(
+          `https://api.spotify.com/v1/browse/categories/${category.id}/playlists`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        return playlistsResponse.data.playlists.items;
+      });
+
+      const results = await Promise.all(randomPromises);
+      setRandomContent(results.flat());
+    } catch (error) {
+      console.error("Error fetching random content:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchTracksFromPlaylist = async (playlistId: string, token: string) => {
+    const fetchTracksFromPlaylist = async (
+      playlistId: string,
+      token: string
+    ) => {
       try {
         const response = await axios.get(
           `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
@@ -89,7 +141,7 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
             },
           }
         );
-        return response.data.items; // Return the tracks
+        return response.data.items;
       } catch (error) {
         console.error("Error fetching playlist tracks:", error);
         return [];
@@ -119,6 +171,23 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
     }
   };
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      resultsRef.current &&
+      !resultsRef.current.contains(event.target as Node)
+    ) {
+      setFocused(false);
+      setResults([]);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -127,7 +196,6 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 3000,
-    arrows: true,
   };
 
   return (
@@ -141,7 +209,10 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
         placeholder="Search for music, artist, album..."
       />
       {focused && results.length > 0 && (
-        <ul className="absolute bg-white text-black mt-2 w-full max-w-[800px] max-h-[300px] overflow-y-auto rounded-xl shadow-lg z-10">
+        <ul
+          ref={resultsRef}
+          className="absolute bg-white text-black mt-2 w-full max-w-[800px] max-h-[300px] overflow-y-auto rounded-xl shadow-lg z-10"
+        >
           {results.map((track) => (
             <li
               key={track.id}
@@ -166,72 +237,87 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
                   </p>
                 </div>
               </div>
-              <button
-                className="ml-4 bg-green-500 text-white p-2 rounded-full"
+
+              <img
+                src={play}
+                alt="play"
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePlayPreview(track);
                 }}
-              >
-                Play
-              </button>
+                className={`w-6 h-6 cursor-pointer`}
+              />
             </li>
           ))}
         </ul>
       )}
 
       <div className="text-white font-bold text-2xl mt-16">
-        <p className="text-sm sm:text-2xl">Hello, Good Morning👋</p>
+        <p className="text-sm sm:text-2xl">{greeting} 👋</p>
         <select
           onChange={(e) => setSelectedPlaylistId(e.target.value)}
           value={selectedPlaylistId || ""}
           className="bg-transparent border-none text-sm"
         >
-          <option value="" className="text-black bg-transparent">Select a Playlist</option>
-          {playlists.map((playlist: any) => (
-            <option key={playlist.id} className="text-black bg-transparent" value={playlist.id}>
-              {playlist.name}
+          <option value="" className="text-black bg-transparent">
+            Select a Playlist
+          </option>
+          {playlists.length > 0 ? (
+            playlists.map((playlist: any) => (
+              <option
+                key={playlist.id}
+                className="text-black bg-transparent"
+                value={playlist.id}
+              >
+                {playlist.name}
+              </option>
+            ))
+          ) : (
+            <option className="text-black bg-transparent">
+              No Playlists Found
             </option>
-          ))}
+          )}
         </select>
 
         {currentTrack && (
           <div className="current-track-info mt-4">
             <p className="text-lg text-white">Currently Playing:</p>
-            <p className="text-sm text-gray-300">{currentTrack.name} by {currentTrack.artists[0]?.name}</p>
+            <p className="text-sm text-gray-300">
+              {currentTrack.name} by {currentTrack.artists[0]?.name}
+            </p>
           </div>
         )}
 
-        <Slider {...sliderSettings} className="mt-6">
-          {featuredTracks.map((item, index) => (
-            <div
-              key={index}
-              className="relative rounded-2xl h-40 sm:h-96 flex items-center justify-center overflow-hidden"
-            >
-              <img
-                src={item?.track?.album?.images?.[1]?.url || "default-image-url"}
-                alt={item?.track?.name || "Unknown Track"}
-                className="h-full w-full object-cover" // Ensure the image covers the container
-              />
-              <div className="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                {" "}{/* Semi-transparent background */}
-                <h1 className="font-bold text-white sm:text-2xl">
-                  {item?.track?.name || "Unknown Track"}
-                </h1>
-                <p className="font-semibold text-gray-300 text-sm">
-                  By{" "}
-                  <span className="text-[#B6FF52] text-xs font-bold">
-                    {item?.track?.artists?.[0]?.name || "Unknown Artist"}
-                  </span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </Slider>
+<Slider {...sliderSettings} className="carousel-container border-red-700">
+  {(featuredTracks.length > 0 ? featuredTracks : randomContent).map((item, index) => (
+    <div
+      key={index}
+      className="relative flex items-center justify-center overflow-hidden h-40 sm:h-60"
+      style={{
+        maxHeight: '250px',  // Limiting the container height
+        border: '2px solid red',  // Debugging: Add border for the container
+      }}
+    >
+      <img
+        src={item?.track?.album?.images?.[1]?.url || item?.images?.[0]?.url || "default-image-url"}
+        alt={item?.track?.name || "Unknown Track"}
+        className="w-full h-full object-cover"
+        style={{
+          border: '2px solid blue',  // Debugging: Add border for the image
+          width: '100%',  // Force the image to take up full width
+          height: '100%',  // Force the image to take up full height
+          objectFit: 'cover',  // Ensures the image covers the container properly
+        }}
+      />
+    </div>
+  ))}
+</Slider>
+
+
       </div>
 
       <div>
-        <HorizontalNewRealeased
+        <HorizontalNewReleased
           token={token}
           playingPreview={playingPreview}
           onPlayPreview={onPlayPreview}

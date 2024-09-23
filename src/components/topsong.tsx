@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import play from '../assets/playbutton.png';
-import BottomPlayer from './bottomplayer';
+
 
 interface TopsongProps {
   rank: number;
@@ -8,21 +8,21 @@ interface TopsongProps {
   artist: string;
   imageUrl: string;
   previewUrl: string | null;
-  onPlay: (previewUrl: string | null) => void;
+  onPlay: (previewUrl: string | null) => void; 
   isPlaying: boolean;
 }
 
-const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl, onPlay, isPlaying }) => {
+const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previewUrl, onPlay }) => {
   const [showNotification, setShowNotification] = useState<boolean>(false);
 
   const handlePlayPreview = () => {
-    setShowNotification(false); // Reset notification state on new click
+    setShowNotification(false); 
     if (!previewUrl) {
       setShowNotification(true);
       setTimeout(() => setShowNotification(false), 3000);
       return;
     }
-    onPlay(previewUrl);
+    onPlay(previewUrl); 
   };
 
   return (
@@ -36,7 +36,7 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
         <h1 className='font-bold'>#{rank < 10 ? `0${rank}` : rank}</h1>
         <div className='flex flex-row gap-2'>
           <img src={imageUrl} alt={title} className='w-10 h-10 rounded-lg' />
-          <div className='text-sm w-20'>
+          <div className='text-sm w-32 overflow-hidden whitespace-nowrap text-ellipsis'>
             <h1 className='font-bold text-xs'>{title}</h1>
             <p className='text-gray-500 text-xs'>{artist}</p>
           </div>
@@ -45,19 +45,9 @@ const Topsong: React.FC<TopsongProps> = ({ rank, title, artist, imageUrl, previe
           src={play}
           alt="play"
           onClick={handlePlayPreview}
-          className={`w-6 h-6 cursor-pointer ${isPlaying ? 'text-green-500' : ''}`}
+          className={`w-6 h-6 cursor-pointer`}
         />
       </div>
-      {isPlaying && (
-        <BottomPlayer
-          clickPlay={isPlaying}
-          image={imageUrl}
-          songname={title}
-          previewUrl={previewUrl}
-          artistname={artist}
-          onNotificationChange={(show) => setShowNotification(show)}
-        />
-      )}
     </div>
   );
 };

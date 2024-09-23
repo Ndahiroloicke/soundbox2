@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import profile from "../assets/profile.png"; // Fallback profile image
 import Topsong from "./topsong";
+import Profile from "./profile"; // Import Profile component
 import axios from "axios";
 
 interface UserProfile {
@@ -11,23 +11,41 @@ interface UserProfile {
 
 interface TopChartProps {
   token: string | null;
+  onPlayPreview: (previewUrl: string | null, track: any) => void;
+  isPlaying: boolean;
+  currentPreviewUrl: string | null;
 }
 
-const TopChart: React.FC<TopChartProps> = ({ token }) => {
+const TopChart: React.FC<TopChartProps> = ({
+  token,
+  onPlayPreview,
+  isPlaying,
+  currentPreviewUrl,
+}) => {
   const [topCharts, setTopCharts] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentPreviewUrl, setCurrentPreviewUrl] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null); // State for user profile
 
   useEffect(() => {
     if (!token) return;
 
-    // Fetch Top Tracks
+    const fetchUserProfile = async () => {
+      try {
+        const response = await axios.get("https://api.spotify.com/v1/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUserProfile(response.data);
+        console.log(response)
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+
     const fetchTopCharts = async () => {
       try {
         const response = await axios.get(
-          "https://api.spotify.com/v1/me/top/tracks?limit=5",
+          "https://api.spotify.com/v1/me/top/tracks?limit=10",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -40,68 +58,14 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
       }
     };
 
-    // Fetch User Profile Info (Name & Email)
-    const fetchUserProfile = async () => {
-      try {
-        const response = await axios.get<UserProfile>("https://api.spotify.com/v1/me", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUserProfile(response.data);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
-    fetchTopCharts();
     fetchUserProfile();
+    fetchTopCharts();
   }, [token]);
-
-  const handlePlayPreview = (previewUrl: string | null) => {
-    if (!previewUrl) {
-      return; // Handle no preview URL case
-    }
-
-    // Pause the current audio if one is playing
-    if (audio) {
-      audio.pause();
-    }
-
-    // If the clicked preview is the same as the current one, toggle playback
-    if (isPlaying && previewUrl === currentPreviewUrl) {
-      setIsPlaying(false);
-      return;
-    }
-
-    // Create a new Audio element for the new preview
-    const newAudio = new Audio(previewUrl);
-    setAudio(newAudio);
-    setCurrentPreviewUrl(previewUrl);
-    setIsPlaying(true);
-
-    // Play the new audio and handle the end of playback
-    newAudio.play();
-    newAudio.onended = () => {
-      setIsPlaying(false);
-    };
-  };
 
   return (
     <div className="hidden lg:block text-white my-6">
-      <div className="flex flex-row items-center gap-x-3">
-        <img
-          src={userProfile?.images?.[0]?.url || profile}
-          alt="profile"
-          className="w-12 h-12 rounded-full"
-        />
-        <div className="text-sm">
-          <h1 className="font-bold">{userProfile?.display_name || "Guest"}</h1>
-          <p className="text-gray-500">{userProfile?.email || "guest@gmail.com"}</p>
-        </div>
-      </div>
-
-      <div className="mt-16">
+      <Profile userProfile={userProfile} /> 
+      <div className="mt-14">
         <h1 className="font-bold text-xl">Today's Top Charts</h1>
         <div className="flex flex-col gap-y-4 mt-7">
           {topCharts.length > 0 ? (
@@ -113,7 +77,7 @@ const TopChart: React.FC<TopChartProps> = ({ token }) => {
                 title={track.name}
                 artist={track.artists[0].name}
                 imageUrl={track.album.images[0]?.url}
-                onPlay={handlePlayPreview}
+                onPlay={(previewUrl) => onPlayPreview(previewUrl, track)}
                 isPlaying={isPlaying && track.preview_url === currentPreviewUrl}
               />
             ))

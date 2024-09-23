@@ -1,13 +1,13 @@
 import React from 'react';
 
-// Define an interface for the props
+
 interface ToptierCardProps {
   image: string;
   heading: string;
   para: string;
 }
 
-// Use the interface to type the props in the functional component
+
 const ToptierCard: React.FC<ToptierCardProps> = ({ image, heading, para }) => {
   return (
     <div className='flex flex-col items-center bg-gradient-to-tr from-blue-950 to-slate-900 px-6 sm:px-8 py-8 sm:py-12 rounded-3xl border-2 border-white w-full sm:w-auto'>

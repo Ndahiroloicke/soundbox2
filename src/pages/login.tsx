@@ -35,7 +35,7 @@ const Login: React.FC = () => {
     return null;
   };
 
-  // Async useEffect to wait for token storage correctly
+  
   useEffect(() => {
     const handleToken = async () => {
       try {
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
           if (tokenFromHash) {
             window.localStorage.setItem("token", tokenFromHash);
             setToken(tokenFromHash);
-            window.location.hash = ""; // Clear the hash
+            window.location.hash = ""; 
             console.log("Token stored in localStorage and state updated.");
             navigate("/dashboard");
           }

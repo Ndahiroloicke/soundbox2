@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardNav from "../components/dashboardnav";
 import DashboardSearch from "../components/dashboardSearch";
 import TopChart from "../components/topchart";
@@ -7,46 +7,48 @@ import BottomPlayer from "../components/bottomplayer";
 const Dashboard = () => {
   const [token, setToken] = useState<string | null>(null);
   const [playingPreview, setPlayingPreview] = useState<string | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<any>(null); // Add state for current track
+  const [currentTrack, setCurrentTrack] = useState<any>(null); 
 
   useEffect(() => {
     const storeToken = window.localStorage.getItem("token");
     setToken(storeToken);
-  }, []); // Add an empty dependency array to run only once
+  }, []); 
 
   const handlePlayPreview = (previewUrl: string | null, track: any) => {
     if (playingPreview === previewUrl) {
-      setPlayingPreview(null); // Stop if the same song is clicked
-      setCurrentTrack(null); // Clear current track when stopped
+      setPlayingPreview(null); 
+      setCurrentTrack(null); 
     } else {
-      setPlayingPreview(previewUrl); // Start playing the new song
-      setCurrentTrack(track); // Set the new current track
+      setPlayingPreview(previewUrl); 
+      setCurrentTrack(track); 
     }
   };
 
   return (
-    <div className="bg-gradient-to-l from-blue-950 to-black min-h-screen flex flex-col">
+    <div className="bg-gradient-to-l px-56 from-blue-950 to-black min-h-screen flex flex-col">
       <div className="flex flex-row justify-between gap-x-10 p-4">
-        <DashboardNav />
-        <DashboardSearch 
-          token={token} 
-          playingPreview={playingPreview} 
-          onPlayPreview={handlePlayPreview} // Pass track as argument here
+        <DashboardSearch
+          token={token}
+          playingPreview={playingPreview}
+          onPlayPreview={handlePlayPreview}
         />
-        <TopChart token={token} />
+        <TopChart
+          token={token}
+          onPlayPreview={handlePlayPreview}
+          isPlaying={!!playingPreview} 
+          currentPreviewUrl={playingPreview} 
+        />
       </div>
-      {/* Optional: Add more content here if needed */}
-      <div className="flex-grow"></div> {/* This will take up remaining space */}
-
-      {/* Bottom Player */}
+      <div className="flex-grow"></div> 
+      
       {playingPreview && currentTrack && (
         <BottomPlayer
-          image={currentTrack.album.images[1]?.url || "default-image-url"}
+          image={currentTrack.album.images[0]?.url || "default-image-url"}
           songname={currentTrack.name}
           artistname={currentTrack.artists[0]?.name}
           previewUrl={playingPreview}
-          clickPlay={true} // Adjust this based on your logic
-          onNotificationChange={() => {}} // No-op function
+          clickPlay={true} 
+          onNotificationChange={() => {}} 
         />
       )}
     </div>

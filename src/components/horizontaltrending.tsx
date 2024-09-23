@@ -11,20 +11,20 @@ interface HorizontalProps {
 const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPreview }) => {
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [itemsToFetch, setItemsToFetch] = useState<number>(15); // Fetch more initially
+  const [itemsToFetch, setItemsToFetch] = useState<number>(15); 
 
-  // useEffect(() => {
-  //   const updateItemsToFetch = () => {
-  //     setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 12 : 15); // Adjust as needed
-  //   };
+  useEffect(() => {
+    const updateItemsToFetch = () => {
+      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 40 : 50);
+    };
 
-  //   updateItemsToFetch();
-  //   window.addEventListener("resize", updateItemsToFetch);
+    updateItemsToFetch();
+    window.addEventListener("resize", updateItemsToFetch);
 
-  //   return () => {
-  //     window.removeEventListener("resize", updateItemsToFetch);
-  //   };
-  // }, []);
+    return () => {
+      window.removeEventListener("resize", updateItemsToFetch);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -33,17 +33,17 @@ const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token, playingPrevie
       setLoading(true);
       try {
         const response = await axios.get(
-          `https://api.spotify.com/v1/recommendations?limit=25&seed_genres=pop,rock,hip-hop`,
+          `https://api.spotify.com/v1/recommendations?limit=50&seed_genres=pop,rock,hip-hop`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        console.log(response.data); // Log the entire response
+        console.log(response.data); 
         const tracksWithPreviewUrl = response.data.tracks
           .filter((track: any) => track.preview_url)
-          .slice(0, 6);
+          .slice(0, 100);
         setTracks(tracksWithPreviewUrl);
       } catch (error) {
         console.error("Error fetching tracks:", error);
@@ -73,7 +73,7 @@ const HorizontalNewReleases: React.FC<HorizontalProps> = ({ token, playingPrevie
               songname={track.name}
               artistname={track.artists[0]?.name || "Unknown Artist"}
               playingPreview={playingPreview}
-              onPlay={() => onPlayPreview(track.preview_url, track)} // Pass the onPlayPreview prop
+              onPlay={() => onPlayPreview(track.preview_url, track)} 
             />
           ))
         ) : (

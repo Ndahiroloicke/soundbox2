@@ -6,7 +6,7 @@ interface BottomPlayerProps {
   artistname: string;
   previewUrl: string | null;
   clickPlay: boolean;
-  onNotificationChange?: (show: boolean) => void; // Mark as optional
+  onNotificationChange?: (show: boolean) => void; 
 }
 
 const BottomPlayer: React.FC<BottomPlayerProps> = ({
@@ -15,13 +15,13 @@ const BottomPlayer: React.FC<BottomPlayerProps> = ({
   artistname,
   previewUrl,
   clickPlay,
-  onNotificationChange = () => {}, // Default no-op function
+  onNotificationChange = () => {},
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (previewUrl) {
-      // Initialize audio element
+     
       if (!audioRef.current) {
         audioRef.current = new Audio(previewUrl);
       } else {
@@ -30,7 +30,7 @@ const BottomPlayer: React.FC<BottomPlayerProps> = ({
 
       const handlePlay = () => {
         if (audioRef.current) {
-          audioRef.current.pause(); // Pause any ongoing playback
+          audioRef.current.pause(); 
         }
       };
 
@@ -60,7 +60,7 @@ const BottomPlayer: React.FC<BottomPlayerProps> = ({
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.src = ""; // Clear src to avoid potential issues
+        audioRef.current.src = ""; 
         audioRef.current = null;
       }
     };

@@ -5,7 +5,7 @@ import axios from "axios";
 interface HorizontalProps {
   token: string | null;
   playingPreview: string | null;
-  onPlayPreview: (previewUrl: string | null, track: any) => void; // Updated signature
+  onPlayPreview: (previewUrl: string | null, track: any) => void; 
 }
 
 const Horizontal: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPreview }) => {
@@ -14,7 +14,7 @@ const Horizontal: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPr
 
   useEffect(() => {
     const updateItemsToFetch = () => {
-      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 6 : 10);
+      setItemsToFetch(window.matchMedia("(max-width: 640px)").matches ? 20 : 10);
     };
 
     updateItemsToFetch();
@@ -38,7 +38,16 @@ const Horizontal: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPr
             },
           }
         );
-        setTracks(response.data.items);
+        const formattedTracks = response.data.items.map((item: any) => ({
+          id: item.track.id,
+          name: item.track.name,
+          album: {
+            images: item.track.album.images,
+          },
+          artists: item.track.artists,
+          preview_url: item.track.preview_url,
+        }));
+        setTracks(formattedTracks);
       } catch (error) {
         console.log("Error fetching recently played tracks", error);
       }
@@ -49,17 +58,17 @@ const Horizontal: React.FC<HorizontalProps> = ({ token, playingPreview, onPlayPr
 
   return (
     <div className="text-white mt-9 w-full">
-      <h1 className="font-extrabold text-lg sm:text-2xl">Recently Played</h1>
+      <h1 className="font-extrabold text-lg mb-7 sm:text-2xl">Recently Played</h1>
       <div className="flex overflow-x-auto space-x-4 pb-4">
-        {tracks.map((trackData, index) => (
+        {tracks.map((track, index) => (
           <Imagebox
-            key={`${trackData.track.id}-${index}`}
-            image={trackData.track.album.images[1]?.url || "default-image"}
-            songname={trackData.track.name}
-            artistname={trackData.track.artists[0]?.name || "Unknown Artist"}
-            previewUrl={trackData.track.preview_url}
+            key={`${track.id}-${index}`}
+            image={track.album.images[1]?.url || "default-image"}
+            songname={track.name}
+            artistname={track.artists[0]?.name || "Unknown Artist"}
+            previewUrl={track.preview_url}
             playingPreview={playingPreview}
-            onPlay={() => onPlayPreview(trackData.track.preview_url,trackData.track)} // Pass track to the handler
+            onPlay={() => onPlayPreview(track.preview_url, track)} 
           />
         ))}
       </div>

@@ -2,8 +2,8 @@ import emailjs from '@emailjs/browser';
 import { useRef, useState } from 'react';
 
 const Subscribe = () => {
-  const form = useRef<HTMLFormElement | null>(null); // Specify the form element type
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal visibility
+  const form = useRef<HTMLFormElement | null>(null); 
+  const [isModalOpen, setIsModalOpen] = useState(false); 
 
   const sendEmail = (e: any) => {
     e.preventDefault();
@@ -13,7 +13,7 @@ const Subscribe = () => {
         .then(
           () => {
             console.log('SUCCESS!');
-            setIsModalOpen(true); // Open the modal on success
+            setIsModalOpen(true);
           },
           (error) => {
             console.log('FAILED.....', error.text);
@@ -25,7 +25,7 @@ const Subscribe = () => {
   };
 
   const closeModal = () => {
-    setIsModalOpen(false); // Close the modal
+    setIsModalOpen(false); 
   };
 
   return (
@@ -50,7 +50,7 @@ const Subscribe = () => {
           </button>
         </form>
 
-      {/* Modal Popup */}
+      
       {isModalOpen && (
         <div className='fixed top-0 left-0 w-full h-full text-black flex items-center justify-center bg-black bg-opacity-50'>
           <div className='bg-white rounded-lg p-8 text-center'>

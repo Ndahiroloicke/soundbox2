@@ -6,7 +6,7 @@ interface SongProps {
   artistname: string;
   previewUrl: string | null;
   playingPreview: string | null;
-  onPlay: () => void; // Function to play the preview
+  onPlay: () => void; 
 }
 
 const Imagebox: React.FC<SongProps> = ({
@@ -22,7 +22,7 @@ const Imagebox: React.FC<SongProps> = ({
       <img
         src={image}
         alt={songname}
-        onClick={onPlay} // Trigger play when clicked
+        onClick={onPlay} 
         className="w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 rounded-md hover:opacity-75 cursor-pointer"
       />
       <div className="text-center mt-2">

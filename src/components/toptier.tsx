@@ -6,7 +6,7 @@ import speaker from '../assets/speaker.png'
 const TopTier = () => {
   return (
     <div className='sm:mt-48 mt-24 mx-4 sm:mx-40 text-white'>
-      {/* Header Section */}
+    
       <div className='flex flex-col sm:flex-row items-center mb-12 sm:mb-24'>
         <div className='flex-1'>
           <h1 className='text-3xl sm:text-6xl font-bold'>
@@ -20,7 +20,7 @@ const TopTier = () => {
         </div>
       </div>
       
-      {/* Cards Section */}
+ 
       <div className='flex flex-col sm:flex-row gap-6 sm:gap-10'>
         <ToptierCard 
           image={compass} 
