@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import Slider from "react-slick";
 import Horizontal from "./horizontalfeed";
 import HorizontalNewReleased from "./horizontalNew";
 import play from "../assets/playbutton.png";
 import HorizontalTopPicks from "./horizontaltrending";
+import PlaylistCarousel from "./playlistswiprer"; // Import the new Carousel component
 
 interface DashboardSearchProps {
   token: string | null;
@@ -21,14 +21,11 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
   const [results, setResults] = useState<any[]>([]);
   const [debouncedQuery, setDebouncedQuery] = useState<string>(query);
   const [focused, setFocused] = useState<boolean>(false);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
   const [currentTrack, setCurrentTrack] = useState<any>(null);
-  const [featuredTracks, setFeaturedTracks] = useState<any[]>([]);
   const [playlists, setPlaylists] = useState<any[]>([]);
-  const [randomContent, setRandomContent] = useState<any[]>([]);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(
-    null
-  );
   const [greeting, setGreeting] = useState<string>("");
+  const [playlistTracks, setPlaylistTracks] = useState<any[]>([]); // State to hold selected playlist tracks
   const resultsRef = useRef<HTMLUListElement | null>(null);
 
   useEffect(() => {
@@ -66,6 +63,7 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
           }
         );
         setResults(response.data.tracks.items);
+        console.log(currentTrack)
       } catch (error) {
         console.error("Error fetching search results:", error);
       }
@@ -93,45 +91,12 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
 
     if (token) {
       fetchUserPlaylists(token);
-      fetchRandomContent(token); // Fetch random content when the token is available
     }
   }, [token]);
 
-  const fetchRandomContent = async (token: string) => {
-    try {
-      const response = await axios.get(
-        `https://api.spotify.com/v1/browse/categories`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const categories = response.data.categories.items;
-      const randomPromises = categories.map(async (category: any) => {
-        const playlistsResponse = await axios.get(
-          `https://api.spotify.com/v1/browse/categories/${category.id}/playlists`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        return playlistsResponse.data.playlists.items;
-      });
-
-      const results = await Promise.all(randomPromises);
-      setRandomContent(results.flat());
-    } catch (error) {
-      console.error("Error fetching random content:", error);
-    }
-  };
-
+  // Fetch tracks for the selected playlist
   useEffect(() => {
-    const fetchTracksFromPlaylist = async (
-      playlistId: string,
-      token: string
-    ) => {
+    const fetchPlaylistTracks = async (playlistId: string) => {
       try {
         const response = await axios.get(
           `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
@@ -141,25 +106,16 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
             },
           }
         );
-        return response.data.items;
-      } catch (error) {
-        console.error("Error fetching playlist tracks:", error);
-        return [];
-      }
-    };
-
-    const fetchTracks = async () => {
-      if (!selectedPlaylistId || !token) return;
-
-      try {
-        const tracks = await fetchTracksFromPlaylist(selectedPlaylistId, token);
-        setFeaturedTracks(tracks);
+        setPlaylistTracks(response.data.items);
+        console.log(response);
       } catch (error) {
         console.error("Error fetching playlist tracks:", error);
       }
     };
 
-    fetchTracks();
+    if (selectedPlaylistId) {
+      fetchPlaylistTracks(selectedPlaylistId);
+    }
   }, [selectedPlaylistId, token]);
 
   const handlePlayPreview = (track: any) => {
@@ -172,10 +128,7 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (
-      resultsRef.current &&
-      !resultsRef.current.contains(event.target as Node)
-    ) {
+    if (resultsRef.current && !resultsRef.current.contains(event.target as Node)) {
       setFocused(false);
       setResults([]);
     }
@@ -187,16 +140,6 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const sliderSettings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-  };
 
   return (
     <div className="my-7 search-container relative overflow-hidden">
@@ -278,51 +221,15 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
             </option>
           )}
         </select>
-
-        {currentTrack && (
-          <div className="current-track-info mt-4">
-            <p className="text-lg text-white">Currently Playing:</p>
-            <p className="text-sm text-gray-300">
-              {currentTrack.name} by {currentTrack.artists[0]?.name}
-            </p>
-          </div>
-        )}
-
-<Slider {...sliderSettings} className="carousel-container border-red-700">
-  {(featuredTracks.length > 0 ? featuredTracks : randomContent).map((item, index) => (
-    <div
-      key={index}
-      className="relative flex items-center justify-center overflow-hidden h-40 sm:h-60"
-      style={{
-        maxHeight: '250px',  // Limiting the container height
-        border: '2px solid red',  // Debugging: Add border for the container
-      }}
-    >
-      <img
-        src={item?.track?.album?.images?.[1]?.url || item?.images?.[0]?.url || "default-image-url"}
-        alt={item?.track?.name || "Unknown Track"}
-        className="w-full h-full object-cover"
-        style={{
-          border: '2px solid blue',  // Debugging: Add border for the image
-          width: '100%',  // Force the image to take up full width
-          height: '100%',  // Force the image to take up full height
-          objectFit: 'cover',  // Ensures the image covers the container properly
-        }}
-      />
-    </div>
-  ))}
-</Slider>
-
-
       </div>
+
+      {/* Render the PlaylistCarousel with fetched tracks */}
+      {playlistTracks.length > 0 && (
+        <PlaylistCarousel tracks={playlistTracks} />
+      )}
 
       <div>
         <HorizontalNewReleased
-          token={token}
-          playingPreview={playingPreview}
-          onPlayPreview={onPlayPreview}
-        />
-        <HorizontalTopPicks
           token={token}
           playingPreview={playingPreview}
           onPlayPreview={onPlayPreview}
@@ -338,8 +245,6 @@ const DashboardSearch: React.FC<DashboardSearchProps> = ({
           onPlayPreview={onPlayPreview}
         />
       </div>
-
-      <div className="flex-grow"></div>
     </div>
   );
 };

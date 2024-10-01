@@ -27,9 +27,17 @@
     width: 100%; /* Make sure images scale with width */
   }
   .carousel-container {
-    height: 250px; /* Set appropriate height */
-    max-height: 300px;
-    overflow: hidden; /* Ensure images don't overflow */
+    width: 100%; /* Ensure the container is full width */
+    height: auto; /* Ensure it adjusts to the content height */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .carousel-container img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Ensures the image covers the container */
   }
   
   
