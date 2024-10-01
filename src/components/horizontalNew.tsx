@@ -41,6 +41,7 @@ const HorizontalRecommendedTracks: React.FC<HorizontalProps> = ({ token, playing
           }
         );
         console.log(response.data); 
+        console.log(itemsToFetch)
         const tracksWithPreviewUrl = response.data.tracks
           .filter((track: any) => track.preview_url)
           .slice(0, 100); 

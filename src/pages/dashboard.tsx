@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import DashboardNav from "../components/dashboardnav";
+import { useEffect, useState } from "react";
 import DashboardSearch from "../components/dashboardSearch";
 import TopChart from "../components/topchart";
 import BottomPlayer from "../components/bottomplayer";
